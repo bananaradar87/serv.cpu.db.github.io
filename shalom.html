@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>База данных серверных процессоров</title>
+<style>
+:root {
+--primary-color: #007bff;
+--header-bg: #343a40;
+--body-bg: #f8f9fa;
+--table-bg: #ffffff;
+--table-border-color: #dee2e6;
+--table-header-color: #212529;
+--text-color: #333;
+--hover-bg: #e9ecef;
+}
+
+      
+* {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--body-bg);
+        color: var(--text-color);
+        line-height: 1.6;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    header {
+        background-color: var(--header-bg);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    header h1 {
+        font-weight: 300;
+    }
+
+    .controls {
+        background-color: var(--table-bg);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .controls label {
+        font-weight: 500;
+    }
+
+    .controls select {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border: 1px solid var(--table-border-color);
+        border-radius: 5px;
+        background-color: #fff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--table-bg);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border-radius: 8px;
+        overflow: hidden; /* Important for border-radius on table */
+    }
+
+    th, td {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        border-bottom: 1px solid var(--table-border-color);
+    }
+
+    th {
+        background-color: #f2f2f2;
+        color: var(--table-header-color);
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        position: relative;
+    }
+    
+    th .sort-indicator {
+        color: var(--primary-color);
+        font-size: 0.8em;
+        margin-left: 5px;
+    }
+    
+    th:hover {
+        background-color: var(--hover-bg);
+    }
+
+    tbody tr:hover {
+        background-color: var(--hover-bg);
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    footer {
+        background-color: var(--header-bg);
+        color: rgba(255,255,255,0.7);
+        text-align: center;
+        padding: 1rem;
+        margin-top: 3rem;
+    }
+</style>
+
+    
+
+</head>
+<body>
+<header>
+<h1>База данных серверных процессоров</h1>
+</header>
+<div class="container">
+<div class="controls">
+<label for="brandFilter">Фильтр по производителю:</label>
+<select id="brandFilter" onchange="filterTable()">
+<option value="all">Все бренды</option>
+<option value="Intel">Intel</option>
+<option value="AMD">AMD</option>
+<option value="Ampere">Ampere</option>
+</select>
+</div>
+
+      
+<table>
+    <thead>
+        <tr>
+            <th onclick="sortTable(0)">Model<span class="sort-indicator"></span></th>
+            <th onclick="sortTable(1)">Manufacturer<span class="sort-indicator"></span></th>
+            <th onclick="sortTable(2)">Cores<span class="sort-indicator"></span></th>
+            <th onclick="sortTable(3)">Threads<span class="sort-indicator"></span></th>
+            <th onclick="sortTable(4)">Base Clock<span class="sort-indicator"></span></th>
+            <th onclick="sortTable(5)">Max Turbo Clock<span class="sort-indicator"></span></th>
+            <th onclick="sortTable(6)">TDP<span class="sort-indicator"></span></th>
+        </tr>
+    </thead>
+    <tbody id="processorTableBody">
+        <!-- Existing 44 processors -->
+        <tr><td>Intel Xeon E5-2699 v4</td><td>Intel</td><td>22</td><td>44</td><td>2.2 GHz</td><td>3.6 GHz</td><td>145 W</td></tr>
+        <tr><td>AMD EPYC 7742</td><td>AMD</td><td>64</td><td>128</td><td>2.25 GHz</td><td>3.4 GHz</td><td>225 W</td></tr>
+        <tr><td>Intel Xeon Platinum 8280</td><td>Intel</td><td>28</td><td>56</td><td>2.7 GHz</td><td>4.0 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 7453</td><td>AMD</td><td>28</td><td>56</td><td>2.75 GHz</td><td>4.0 GHz</td><td>225 W</td></tr>
+        <tr><td>AMD EPYC 9654</td><td>AMD</td><td>96</td><td>192</td><td>2.25 GHz</td><td>3.7 GHz</td><td>360 W</td></tr>
+        <tr><td>Intel Xeon Platinum 8480+</td><td>Intel</td><td>56</td><td>112</td><td>2.0 GHz</td><td>3.8 GHz</td><td>350 W</td></tr>
+        <tr><td>AMD EPYC 7763</td><td>AMD</td><td>64</td><td>128</td><td>2.45 GHz</td><td>3.5 GHz</td><td>280 W</td></tr>
+        <tr><td>Intel Xeon Platinum 8380</td><td>Intel</td><td>40</td><td>80</td><td>2.3 GHz</td><td>3.4 GHz</td><td>270 W</td></tr>
+        <tr><td>Ampere Altra Max M128-30</td><td>Ampere</td><td>128</td><td>128</td><td>3.0 GHz</td><td>3.0 GHz</td><td>250 W</td></tr>
+        <tr><td>AMD EPYC 7J13</td><td>AMD</td><td>64</td><td>128</td><td>2.55 GHz</td><td>3.7 GHz</td><td>280W</td></tr>
+        <tr><td>Intel Xeon Gold 6348</td><td>Intel</td><td>28</td><td>56</td><td>2.6 GHz</td><td>3.5 GHz</td><td>235 W</td></tr>
+        <tr><td>AMD EPYC 75F3</td><td>AMD</td><td>32</td><td>64</td><td>2.95 GHz</td><td>4.0 GHz</td><td>280 W</td></tr>
+        <tr><td>Intel Xeon Gold 6248R</td><td>Intel</td><td>24</td><td>48</td><td>3.0 GHz</td><td>4.0 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 7H12</td><td>AMD</td><td>64</td><td>128</td><td>2.6 GHz</td><td>3.3 GHz</td><td>280 W</td></tr>
+        <tr><td>Intel Xeon Silver 4314</td><td>Intel</td><td>16</td><td>32</td><td>2.4 GHz</td><td>3.4 GHz</td><td>135 W</td></tr>
+        <tr><td>AMD EPYC 7313</td><td>AMD</td><td>16</td><td>32</td><td>3.0 GHz</td><td>3.7 GHz</td><td>155 W</td></tr>
+        <tr><td>Intel Xeon Silver 4216</td><td>Intel</td><td>16</td><td>32</td><td>2.1 GHz</td><td>3.2 GHz</td><td>100 W</td></tr>
+        <tr><td>AMD EPYC 72F3</td><td>AMD</td><td>8</td><td>16</td><td>3.7 GHz</td><td>4.1 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon Bronze 3204</td><td>Intel</td><td>6</td><td>6</td><td>1.9 GHz</td><td>1.9 GHz</td><td>85 W</td></tr>
+        <tr><td>AMD EPYC 9374F</td><td>AMD</td><td>32</td><td>64</td><td>3.85 GHz</td><td>4.3 GHz</td><td>320 W</td></tr>
+        <tr><td>Intel Xeon Platinum 8592+</td><td>Intel</td><td>64</td><td>128</td><td>1.9 GHz</td><td>3.9 GHz</td><td>385 W</td></tr>
+        <tr><td>Ampere Altra Q80-33</td><td>Ampere</td><td>80</td><td>80</td><td>3.3 GHz</td><td>3.3 GHz</td><td>210 W</td></tr>
+        <tr><td>AMD EPYC 7773X</td><td>AMD</td><td>64</td><td>128</td><td>2.2 GHz</td><td>3.5 GHz</td><td>280 W</td></tr>
+        <tr><td>Intel Xeon Max 9480</td><td>Intel</td><td>56</td><td>112</td><td>1.9 GHz</td><td>3.5 GHz</td><td>350 W</td></tr>
+        <tr><td>AMD EPYC 8534P</td><td>AMD</td><td>64</td><td>128</td><td>2.3 GHz</td><td>3.1 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon Gold 5416S</td><td>Intel</td><td>16</td><td>32</td><td>2.0 GHz</td><td>4.0 GHz</td><td>150 W</td></tr>
+        <tr><td>AMD EPYC 7502</td><td>AMD</td><td>32</td><td>64</td><td>2.5 GHz</td><td>3.35 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon Gold 6330</td><td>Intel</td><td>28</td><td>56</td><td>2.0 GHz</td><td>3.1 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 7662</td><td>AMD</td><td>64</td><td>128</td><td>2.0 GHz</td><td>3.3 GHz</td><td>225 W</td></tr>
+        <tr><td>Intel Xeon E-2388G</td><td>Intel</td><td>8</td><td>16</td><td>3.2 GHz</td><td>5.1 GHz</td><td>95 W</td></tr>
+        <tr><td>AMD Ryzen Threadripper PRO 7995WX</td><td>AMD</td><td>96</td><td>192</td><td>2.5 GHz</td><td>5.1 GHz</td><td>350 W</td></tr>
+        <tr><td>Intel Xeon W-3375</td><td>Intel</td><td>38</td><td>76</td><td>2.5 GHz</td><td>4.0 GHz</td><td>270 W</td></tr>
+        <tr><td>AMD EPYC 9124</td><td>AMD</td><td>16</td><td>32</td><td>3.0 GHz</td><td>3.7 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon Silver 4410Y</td><td>Intel</td><td>12</td><td>24</td><td>2.0 GHz</td><td>3.9 GHz</td><td>150 W</td></tr>
+        <tr><td>Intel Xeon E5-2670 v3</td><td>Intel</td><td>12</td><td>24</td><td>2.3 GHz</td><td>3.1 GHz</td><td>120 W</td></tr>
+        <tr><td>AMD EPYC 7402P</td><td>AMD</td><td>24</td><td>48</td><td>2.8 GHz</td><td>3.35 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon Gold 5218</td><td>Intel</td><td>16</td><td>32</td><td>2.3 GHz</td><td>3.9 GHz</td><td>125 W</td></tr>
+        <tr><td>AMD EPYC 7302P</td><td>AMD</td><td>16</td><td>32</td><td>3.0 GHz</td><td>3.3 GHz</td><td>155 W</td></tr>
+        <tr><td>Intel Xeon Platinum 8168</td><td>Intel</td><td>24</td><td>48</td><td>2.7 GHz</td><td>3.7 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 7532</td><td>AMD</td><td>32</td><td>64</td><td>2.4 GHz</td><td>3.3 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon Gold 6138</td><td>Intel</td><td>20</td><td>40</td><td>2.0 GHz</td><td>3.7 GHz</td><td>125 W</td></tr>
+        <tr><td>AMD EPYC 7282</td><td>AMD</td><td>16</td><td>32</td><td>2.8 GHz</td><td>3.2 GHz</td><td>120 W</td></tr>
+        <tr><td>Intel Xeon E7-8890 v4</td><td>Intel</td><td>24</td><td>48</td><td>2.2 GHz</td><td>3.4 GHz</td><td>165 W</td></tr>
+        
+        <!-- НОВЫЕ 120 ПРОЦЕССОРОВ НАЧИНАЮТСЯ ЗДЕСЬ -->
+        <tr><td>AMD EPYC 9684X</td><td>AMD</td><td>96</td><td>192</td><td>2.55 GHz</td><td>3.7 GHz</td><td>400 W</td></tr>
+        <tr><td>Intel Xeon Platinum 8558</td><td>Intel</td><td>48</td><td>96</td><td>2.1 GHz</td><td>4.0 GHz</td><td>330 W</td></tr>
+        <tr><td>AMD EPYC 9554</td><td>AMD</td><td>64</td><td>128</td><td>3.1 GHz</td><td>3.75 GHz</td><td>360 W</td></tr>
+        <tr><td>Intel Xeon Gold 6548Y+</td><td>Intel</td><td>32</td><td>64</td><td>2.5 GHz</td><td>4.1 GHz</td><td>250 W</td></tr>
+        <tr><td>AMD EPYC 9474F</td><td>AMD</td><td>48</td><td>96</td><td>3.6 GHz</td><td>4.1 GHz</td><td>360 W</td></tr>
+        <tr><td>Intel Xeon Gold 5515+</td><td>Intel</td><td>8</td><td>16</td><td>3.2 GHz</td><td>4.1 GHz</td><td>165 W</td></tr>
+        <tr><td>AMD EPYC 7543</td><td>AMD</td><td>32</td><td>64</td><td>2.8 GHz</td><td>3.7 GHz</td><td>225 W</td></tr>
+        <tr><td>Intel Xeon Gold 6338</td><td>Intel</td><td>32</td><td>64</td><td>2.0 GHz</td><td>3.2 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 7443P</td><td>AMD</td><td>24</td><td>48</td><td>2.85 GHz</td><td>4.0 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon Silver 4316</td><td>Intel</td><td>20</td><td>40</td><td>2.3 GHz</td><td>3.4 GHz</td><td>150 W</td></tr>
+        <tr><td>AMD EPYC 7343</td><td>AMD</td><td>16</td><td>32</td><td>3.2 GHz</td><td>3.9 GHz</td><td>190 W</td></tr>
+        <tr><td>Intel Xeon Gold 5320</td><td>Intel</td><td>26</td><td>52</td><td>2.2 GHz</td><td>3.4 GHz</td><td>185 W</td></tr>
+        <tr><td>AMD EPYC 7232P</td><td>AMD</td><td>8</td><td>16</td><td>3.1 GHz</td><td>3.2 GHz</td><td>120 W</td></tr>
+        <tr><td>Intel Xeon Bronze 3408U</td><td>Intel</td><td>8</td><td>8</td><td>1.8 GHz</td><td>3.3 GHz</td><td>125 W</td></tr>
+        <tr><td>AMD EPYC 8324P</td><td>AMD</td><td>32</td><td>64</td><td>2.55 GHz</td><td>3.0 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon Gold 6444Y</td><td>Intel</td><td>16</td><td>32</td><td>3.6 GHz</td><td>4.1 GHz</td><td>270 W</td></tr>
+        <tr><td>AMD EPYC 7642</td><td>AMD</td><td>48</td><td>96</td><td>2.3 GHz</td><td>3.3 GHz</td><td>225 W</td></tr>
+        <tr><td>Intel Xeon Gold 6240</td><td>Intel</td><td>18</td><td>36</td><td>2.6 GHz</td><td>3.9 GHz</td><td>150 W</td></tr>
+        <tr><td>AMD EPYC 7542</td><td>AMD</td><td>32</td><td>64</td><td>2.9 GHz</td><td>3.4 GHz</td><td>225 W</td></tr>
+        <tr><td>Intel Xeon Silver 4210R</td><td>Intel</td><td>10</td><td>20</td><td>2.4 GHz</td><td>3.2 GHz</td><td>100 W</td></tr>
+        <tr><td>AMD EPYC 7352</td><td>AMD</td><td>24</td><td>48</td><td>2.3 GHz</td><td>3.2 GHz</td><td>155 W</td></tr>
+        <tr><td>Intel Xeon W-2295</td><td>Intel</td><td>18</td><td>36</td><td>3.0 GHz</td><td>4.8 GHz</td><td>165 W</td></tr>
+        <tr><td>AMD Ryzen Threadripper PRO 5995WX</td><td>AMD</td><td>64</td><td>128</td><td>2.7 GHz</td><td>4.5 GHz</td><td>280 W</td></tr>
+        <tr><td>Intel Xeon E-2278G</td><td>Intel</td><td>8</td><td>16</td><td>3.4 GHz</td><td>5.0 GHz</td><td>80 W</td></tr>
+        <tr><td>AMD EPYC 7702P</td><td>AMD</td><td>64</td><td>128</td><td>2.0 GHz</td><td>3.35 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon Platinum 8176</td><td>Intel</td><td>28</td><td>56</td><td>2.1 GHz</td><td>3.8 GHz</td><td>165 W</td></tr>
+        <tr><td>AMD EPYC 7452</td><td>AMD</td><td>32</td><td>64</td><td>2.35 GHz</td><td>3.35 GHz</td><td>155 W</td></tr>
+        <tr><td>Intel Xeon Gold 6148</td><td>Intel</td><td>20</td><td>40</td><td>2.4 GHz</td><td>3.7 GHz</td><td>150 W</td></tr>
+        <tr><td>AMD EPYC 7252</td><td>AMD</td><td>8</td><td>16</td><td>3.1 GHz</td><td>3.2 GHz</td><td>120 W</td></tr>
+        <tr><td>Intel Xeon Silver 4114</td><td>Intel</td><td>10</td><td>20</td><td>2.2 GHz</td><td>3.0 GHz</td><td>85 W</td></tr>
+        <tr><td>AMD EPYC 7713</td><td>AMD</td><td>64</td><td>128</td><td>2.0 GHz</td><td>3.675 GHz</td><td>225 W</td></tr>
+        <tr><td>Intel Xeon Platinum 8358</td><td>Intel</td><td>32</td><td>64</td><td>2.6 GHz</td><td>3.4 GHz</td><td>250 W</td></tr>
+        <tr><td>AMD EPYC 7513</td><td>AMD</td><td>32</td><td>64</td><td>2.6 GHz</td><td>3.65 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon Gold 6336Y</td><td>Intel</td><td>24</td><td>48</td><td>2.4 GHz</td><td>3.6 GHz</td><td>185 W</td></tr>
+        <tr><td>AMD EPYC 73F3</td><td>AMD</td><td>16</td><td>32</td><td>3.5 GHz</td><td>4.0 GHz</td><td>240 W</td></tr>
+        <tr><td>Intel Xeon Gold 5318Y</td><td>Intel</td><td>24</td><td>48</td><td>2.1 GHz</td><td>3.4 GHz</td><td>165 W</td></tr>
+        <tr><td>AMD EPYC 7283</td><td>AMD</td><td>16</td><td>32</td><td>2.6 GHz</td><td>3.5 GHz</td><td>155 W</td></tr>
+        <tr><td>Intel Xeon Silver 4309Y</td><td>Intel</td><td>8</td><td>16</td><td>2.8 GHz</td><td>3.6 GHz</td><td>105 W</td></tr>
+        <tr><td>AMD EPYC 7F72</td><td>AMD</td><td>24</td><td>48</td><td>3.2 GHz</td><td>3.7 GHz</td><td>240 W</td></tr>
+        <tr><td>Intel Xeon Gold 6230R</td><td>Intel</td><td>26</td><td>52</td><td>2.1 GHz</td><td>4.0 GHz</td><td>150 W</td></tr>
+        <tr><td>AMD EPYC 7502P</td><td>AMD</td><td>32</td><td>64</td><td>2.5 GHz</td><td>3.35 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon Gold 5220R</td><td>Intel</td><td>24</td><td>48</td><td>2.2 GHz</td><td>4.0 GHz</td><td>150 W</td></tr>
+        <tr><td>AMD EPYC 7402</td><td>AMD</td><td>24</td><td>48</td><td>2.8 GHz</td><td>3.35 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon Silver 4214R</td><td>Intel</td><td>12</td><td>24</td><td>2.4 GHz</td><td>3.5 GHz</td><td>100 W</td></tr>
+        <tr><td>AMD EPYC 7302</td><td>AMD</td><td>16</td><td>32</td><td>3.0 GHz</td><td>3.3 GHz</td><td>155 W</td></tr>
+        <tr><td>Intel Xeon Bronze 3206R</td><td>Intel</td><td>8</td><td>8</td><td>1.9 GHz</td><td>1.9 GHz</td><td>85 W</td></tr>
+        <tr><td>AMD EPYC 7262</td><td>AMD</td><td>8</td><td>16</td><td>3.2 GHz</td><td>3.4 GHz</td><td>155 W</td></tr>
+        <tr><td>Intel Xeon Gold 6130</td><td>Intel</td><td>16</td><td>32</td><td>2.1 GHz</td><td>3.7 GHz</td><td>125 W</td></tr>
+        <tr><td>AMD EPYC 7371</td><td>AMD</td><td>16</td><td>32</td><td>3.1 GHz</td><td>3.8 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon Gold 5120</td><td>Intel</td><td>14</td><td>28</td><td>2.2 GHz</td><td>3.2 GHz</td><td>105 W</td></tr>
+        <tr><td>AMD EPYC 7272</td><td>AMD</td><td>12</td><td>24</td><td>2.9 GHz</td><td>3.2 GHz</td><td>120 W</td></tr>
+        <tr><td>Intel Xeon Silver 4110</td><td>Intel</td><td>8</td><td>16</td><td>2.1 GHz</td><td>3.0 GHz</td><td>85 W</td></tr>
+        <tr><td>AMD EPYC 7451</td><td>AMD</td><td>24</td><td>48</td><td>2.3 GHz</td><td>3.2 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon Platinum 8160</td><td>Intel</td><td>24</td><td>48</td><td>2.1 GHz</td><td>3.7 GHz</td><td>150 W</td></tr>
+        <tr><td>AMD EPYC 7351P</td><td>AMD</td><td>16</td><td>32</td><td>2.4 GHz</td><td>2.9 GHz</td><td>170 W</td></tr>
+        <tr><td>Intel Xeon Gold 6132</td><td>Intel</td><td>14</td><td>28</td><td>3.2 GHz</td><td>3.7 GHz</td><td>140 W</td></tr>
+        <tr><td>AMD EPYC 7251</td><td>AMD</td><td>8</td><td>16</td><td>2.1 GHz</td><td>2.9 GHz</td><td>120 W</td></tr>
+        <tr><td>Intel Xeon E5-2697 v4</td><td>Intel</td><td>18</td><td>36</td><td>2.3 GHz</td><td>3.6 GHz</td><td>145 W</td></tr>
+        <tr><td>AMD EPYC 9354</td><td>AMD</td><td>32</td><td>64</td><td>3.25 GHz</td><td>3.8 GHz</td><td>280 W</td></tr>
+        <tr><td>Intel Xeon Max 9468</td><td>Intel</td><td>48</td><td>96</td><td>2.1 GHz</td><td>3.5 GHz</td><td>350 W</td></tr>
+        <tr><td>AMD EPYC 9274F</td><td>AMD</td><td>24</td><td>48</td><td>4.05 GHz</td><td>4.3 GHz</td><td>320 W</td></tr>
+        <tr><td>Intel Xeon Gold 6430</td><td>Intel</td><td>32</td><td>64</td><td>2.1 GHz</td><td>3.4 GHz</td><td>270 W</td></tr>
+        <tr><td>AMD EPYC 9174F</td><td>AMD</td><td>16</td><td>32</td><td>4.1 GHz</td><td>4.4 GHz</td><td>320 W</td></tr>
+        <tr><td>Intel Xeon Silver 4416+</td><td>Intel</td><td>20</td><td>40</td><td>2.0 GHz</td><td>3.5 GHz</td><td>165 W</td></tr>
+        <tr><td>AMD EPYC 8534PN</td><td>AMD</td><td>64</td><td>128</td><td>2.0 GHz</td><td>3.1 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon D-2796TE</td><td>Intel</td><td>20</td><td>20</td><td>2.0 GHz</td><td>3.4 GHz</td><td>118 W</td></tr>
+        <tr><td>AMD EPYC 8324PN</td><td>AMD</td><td>32</td><td>64</td><td>2.3 GHz</td><td>3.0 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon W-3495X</td><td>Intel</td><td>56</td><td>112</td><td>1.9 GHz</td><td>4.8 GHz</td><td>350 W</td></tr>
+        <tr><td>AMD Ryzen Threadripper PRO 5975WX</td><td>AMD</td><td>32</td><td>64</td><td>3.6 GHz</td><td>4.5 GHz</td><td>280 W</td></tr>
+        <tr><td>Intel Xeon W-3475X</td><td>Intel</td><td>36</td><td>72</td><td>2.5 GHz</td><td>4.8 GHz</td><td>300 W</td></tr>
+        <tr><td>AMD EPYC 7573X</td><td>AMD</td><td>32</td><td>64</td><td>2.8 GHz</td><td>3.6 GHz</td><td>280 W</td></tr>
+        <tr><td>Intel Xeon Gold 6354</td><td>Intel</td><td>18</td><td>36</td><td>3.0 GHz</td><td>3.6 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 7473X</td><td>AMD</td><td>24</td><td>48</td><td>2.8 GHz</td><td>3.7 GHz</td><td>240 W</td></tr>
+        <tr><td>Intel Xeon Gold 5317</td><td>Intel</td><td>12</td><td>24</td><td>3.0 GHz</td><td>3.6 GHz</td><td>150 W</td></tr>
+        <tr><td>AMD EPYC 7373X</td><td>AMD</td><td>16</td><td>32</td><td>3.05 GHz</td><td>3.8 GHz</td><td>240 W</td></tr>
+        <tr><td>Intel Xeon E-2386G</td><td>Intel</td><td>6</td><td>12</td><td>3.5 GHz</td><td>5.1 GHz</td><td>95 W</td></tr>
+        <tr><td>AMD EPYC 7F52</td><td>AMD</td><td>16</td><td>32</td><td>3.5 GHz</td><td>3.9 GHz</td><td>240 W</td></tr>
+        <tr><td>Intel Xeon W-1390P</td><td>Intel</td><td>8</td><td>16</td><td>3.5 GHz</td><td>5.3 GHz</td><td>125 W</td></tr>
+        <tr><td>AMD EPYC 7F32</td><td>AMD</td><td>8</td><td>16</td><td>3.7 GHz</td><td>3.9 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon Gold 6258R</td><td>Intel</td><td>28</td><td>56</td><td>2.7 GHz</td><td>4.0 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 7532P</td><td>AMD</td><td>32</td><td>64</td><td>2.4 GHz</td><td>3.3 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon Gold 6246R</td><td>Intel</td><td>16</td><td>32</td><td>3.4 GHz</td><td>4.1 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 7442</td><td>AMD</td><td>32</td><td>64</td><td>2.25 GHz</td><td>3.4 GHz</td><td>155 W</td></tr>
+        <tr><td>Intel Xeon Gold 5218R</td><td>Intel</td><td>20</td><td>40</td><td>2.1 GHz</td><td>4.0 GHz</td><td>125 W</td></tr>
+        <tr><td>AMD EPYC 7351</td><td>AMD</td><td>16</td><td>32</td><td>2.4 GHz</td><td>2.9 GHz</td><td>170 W</td></tr>
+        <tr><td>Intel Xeon Silver 4116</td><td>Intel</td><td>12</td><td>24</td><td>2.1 GHz</td><td>3.0 GHz</td><td>85 W</td></tr>
+        <tr><td>AMD EPYC 7601</td><td>AMD</td><td>32</td><td>64</td><td>2.2 GHz</td><td>3.2 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon E5-2680 v4</td><td>Intel</td><td>14</td><td>28</td><td>2.4 GHz</td><td>3.3 GHz</td><td>120 W</td></tr>
+        <tr><td>AMD EPYC 7551P</td><td>AMD</td><td>32</td><td>64</td><td>2.0 GHz</td><td>3.0 GHz</td><td>180 W</td></tr>
+        <tr><td>Intel Xeon E5-2650 v4</td><td>Intel</td><td>12</td><td>24</td><td>2.2 GHz</td><td>2.9 GHz</td><td>105 W</td></tr>
+        <tr><td>AMD EPYC 7401P</td><td>AMD</td><td>24</td><td>48</td><td>2.0 GHz</td><td>3.0 GHz</td><td>170 W</td></tr>
+        <tr><td>Intel Xeon E5-2630 v4</td><td>Intel</td><td>10</td><td>20</td><td>2.2 GHz</td><td>3.1 GHz</td><td>85 W</td></tr>
+        <tr><td>AMD EPYC 7301</td><td>AMD</td><td>16</td><td>32</td><td>2.2 GHz</td><td>2.7 GHz</td><td>170 W</td></tr>
+        <tr><td>Intel Xeon E5-2620 v4</td><td>Intel</td><td>8</td><td>16</td><td>2.1 GHz</td><td>3.0 GHz</td><td>85 W</td></tr>
+        <tr><td>AMD EPYC 7281</td><td>AMD</td><td>16</td><td>32</td><td>2.1 GHz</td><td>2.7 GHz</td><td>170 W</td></tr>
+        <tr><td>Intel Xeon E3-1270 v6</td><td>Intel</td><td>4</td><td>8</td><td>3.8 GHz</td><td>4.2 GHz</td><td>72 W</td></tr>
+        <tr><td>AMD Opteron 6386 SE</td><td>AMD</td><td>16</td><td>16</td><td>2.8 GHz</td><td>3.5 GHz</td><td>140 W</td></tr>
+        <tr><td>Intel Xeon Platinum 9282</td><td>Intel</td><td>56</td><td>112</td><td>2.6 GHz</td><td>3.8 GHz</td><td>400 W</td></tr>
+        <tr><td>AMD EPYC 9654P</td><td>AMD</td><td>96</td><td>192</td><td>2.4 GHz</td><td>3.7 GHz</td><td>360 W</td></tr>
+        <tr><td>Intel Xeon Platinum 9242</td><td>Intel</td><td>48</td><td>96</td><td>2.3 GHz</td><td>3.8 GHz</td><td>350 W</td></tr>
+        <tr><td>AMD EPYC 9534</td><td>AMD</td><td>64</td><td>128</td><td>2.45 GHz</td><td>3.7 GHz</td><td>280 W</td></tr>
+        <tr><td>Intel Xeon Gold 6438Y+</td><td>Intel</td><td>32</td><td>64</td><td>2.0 GHz</td><td>4.0 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 9454P</td><td>AMD</td><td>48</td><td>96</td><td>2.75 GHz</td><td>3.8 GHz</td><td>290 W</td></tr>
+        <tr><td>Intel Xeon Gold 5420+</td><td>Intel</td><td>28</td><td>56</td><td>2.0 GHz</td><td>3.8 GHz</td><td>205 W</td></tr>
+        <tr><td>AMD EPYC 9334</td><td>AMD</td><td>32</td><td>64</td><td>2.7 GHz</td><td>3.9 GHz</td><td>210 W</td></tr>
+        <tr><td>Intel Xeon Silver 4410T</td><td>Intel</td><td>10</td><td>20</td><td>2.9 GHz</td><td>3.9 GHz</td><td>150 W</td></tr>
+        <tr><td>AMD EPYC 9254</td><td>AMD</td><td>24</td><td>48</td><td>2.9 GHz</td><td>4.15 GHz</td><td>200 W</td></tr>
+        <tr><td>Intel Xeon Bronze 3408</td><td>Intel</td><td>8</td><td>16</td><td>1.8 GHz</td><td>3.3 GHz</td><td>125 W</td></tr>
+        <tr><td>AMD EPYC 8224P</td><td>AMD</td><td>24</td><td>48</td><td>2.55 GHz</td><td>3.0 GHz</td><td>160 W</td></tr>
+        <tr><td>Intel Xeon D-1747NTE</td><td>Intel</td><td>10</td><td>20</td><td>2.5 GHz</td><td>3.5 GHz</td><td>90 W</td></tr>
+        <tr><td>AMD EPYC 8124P</td><td>AMD</td><td>16</td><td>32</td><td>2.45 GHz</td><td>3.0 GHz</td><td>130 W</td></tr>
+        <tr><td>Intel Xeon E-2374G</td><td>Intel</td><td>4</td><td>8</td><td>3.7 GHz</td><td>5.0 GHz</td><td>80 W</td></tr>
+        <tr><td>AMD EPYC 8024P</td><td>AMD</td><td>8</td><td>16</td><td>2.4 GHz</td><td>3.0 GHz</td><td>90 W</td></tr>
+    </tbody>
+</table>
+
+    
+
+
+</div>
+<footer>
+<p>© 2025 База данных серверных процессоров</p>
+</footer>
+<script>
+let currentSortColumn = -1;
+let isAscending = true;
+
+function filterTable() {
+const selectedBrand = document.getElementById('brandFilter').value;
+const tableBody = document.getElementById('processorTableBody');
+const rows = tableBody.getElementsByTagName('tr');
+
+for (let i = 0; i < rows.length; i++) {
+const row = rows[i];
+const manufacturerCell = row.getElementsByTagName('td')[1];
+if (manufacturerCell) {
+const manufacturerName = manufacturerCell.textContent || manufacturerCell.innerText;
+if (selectedBrand === 'all' || manufacturerName === selectedBrand) {
+row.style.display = '';
+} else {
+row.style.display = 'none';
+}
+}
+}
+}
+
+function sortTable(columnIndex) {
+const tableBody = document.getElementById('processorTableBody');
+const rows = Array.from(tableBody.getElementsByTagName('tr'));
+const numericColumns = [2, 3, 6]; // Columns: Cores, Threads, TDP
+const clockColumns = [4, 5]; // Columns: Base Clock, Max Turbo Clock
+
+if (columnIndex === currentSortColumn) {
+isAscending = !isAscending;
+} else {
+currentSortColumn = columnIndex;
+isAscending = true;
+}
+
+const sortedRows = rows.sort((a, b) => {
+const cellA = a.getElementsByTagName('td')[columnIndex].innerText.trim();
+const cellB = b.getElementsByTagName('td')[columnIndex].innerText.trim();
+
+let valueA, valueB;
+
+if (numericColumns.includes(columnIndex) || clockColumns.includes(columnIndex)) {
+// Extract numbers from strings like "145 W" or "2.2 GHz"
+valueA = parseFloat(cellA) || 0;
+valueB = parseFloat(cellB) || 0;
+} else {
+valueA = cellA;
+valueB = cellB;
+}
+
+if (valueA < valueB) {
+return isAscending ? -1 : 1;
+}
+if (valueA > valueB) {
+return isAscending ? 1 : -1;
+}
+return 0;
+});
+
+// Re-append rows in sorted order
+while (tableBody.firstChild) {
+tableBody.removeChild(tableBody.firstChild);
+}
+sortedRows.forEach(row => tableBody.appendChild(row));
+
+updateSortIndicators();
+}
+
+function updateSortIndicators() {
+const headers = document.querySelectorAll("th");
+headers.forEach((header, index) => {
+const indicator = header.querySelector('.sort-indicator');
+if (index === currentSortColumn) {
+indicator.textContent = isAscending ? ' ▲' : ' ▼';
+} else {
+indicator.textContent = '';
+}
+});
+}
+
+</script>
+</body>
+</html>
