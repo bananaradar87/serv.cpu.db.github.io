@@ -6,389 +6,617 @@
 <title>База данных серверных процессоров</title>
 <style>
 :root {
---primary-color: #007bff;
---header-bg: #343a40;
---body-bg: #f8f9fa;
---table-bg: #ffffff;
---table-border-color: #dee2e6;
---table-header-color: #212529;
---text-color: #333;
---hover-bg: #e9ecef;
+--bg-color: #10141c;
+--glass-bg: rgba(22, 27, 38, 0.6);
+--border-color: rgba(138, 147, 169, 0.2);
+--text-primary: #f0f6fc;
+--text-secondary: #a1acc0;
+--accent-glow: #00aaff;
+--hover-bg: rgba(33, 150, 243, 0.1);
 }
 
-      
-* {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
+    {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
     }
 
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        background-color: var(--body-bg);
-        color: var(--text-color);
-        line-height: 1.6;
-    }
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+background-color: var(--bg-color);
+color: var(--text-primary);
+line-height: 1.6;
+overflow-x: hidden;
+position: relative;
+}
 
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
+/* Эффект "Авроры" на фоне */
+body::before {
+content: '';
+position: fixed;
+top: -50%;
+left: -50%;
+width: 200%;
+height: 200%;
+background-image:
+radial-gradient(circle at 20% 20%, rgba(0, 123, 255, 0.3), transparent 25%),
+radial-gradient(circle at 80% 80%, rgba(100, 0, 200, 0.3), transparent 25%);
+background-repeat: no-repeat;
+filter: blur(80px);
+z-index: -1;
+animation: moveAurora 20s infinite alternate;
+}
 
-    header {
-        background-color: var(--header-bg);
-        color: white;
-        padding: 1.5rem;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
+@keyframes moveAurora {
+from { transform: translate(0, 0); }
+to { transform: translate(20%, 20%); }
+}
 
-    header h1 {
-        font-weight: 300;
-    }
+.container {
+max-width: 1400px;
+margin: 0 auto;
+padding: 2rem;
+}
 
-    .controls {
-        background-color: var(--table-bg);
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
+header {
+text-align: center;
+margin-bottom: 2rem;
+}
 
-    .controls label {
-        font-weight: 500;
-    }
+header h1 {
+font-size: 2.5rem;
+font-weight: 600;
+margin-bottom: 0.5rem;
+text-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
 
-    .controls select {
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-        border: 1px solid var(--table-border-color);
-        border-radius: 5px;
-        background-color: #fff;
-    }
+header p {
+color: var(--text-secondary);
+font-size: 1.1rem;
+}
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: var(--table-bg);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        border-radius: 8px;
-        overflow: hidden; /* Important for border-radius on table */
-    }
+.controls-bar {
+display: flex;
+flex-wrap: wrap;
+gap: 1rem;
+background: var(--glass-bg);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+padding: 1rem 1.5rem;
+margin-bottom: 2rem;
+border-radius: 12px;
+border: 1px solid var(--border-color);
+}
 
-    th, td {
-        padding: 1rem 1.5rem;
-        text-align: left;
-        border-bottom: 1px solid var(--table-border-color);
-    }
+.control-group {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+}
 
-    th {
-        background-color: #f2f2f2;
-        color: var(--table-header-color);
-        font-weight: 600;
-        cursor: pointer;
-        user-select: none;
-        position: relative;
-    }
-    
-    th .sort-indicator {
-        color: var(--primary-color);
-        font-size: 0.8em;
-        margin-left: 5px;
-    }
-    
-    th:hover {
-        background-color: var(--hover-bg);
-    }
+.control-group label {
+font-weight: 500;
+color: var(--text-secondary);
+}
 
-    tbody tr:hover {
-        background-color: var(--hover-bg);
-    }
+.control-group select,
+.control-group input {
+font-family: inherit;
+font-size: 1rem;
+background: transparent;
+color: var(--text-primary);
+border: 1px solid var(--border-color);
+border-radius: 8px;
+padding: 0.6rem 1rem;
+transition: all 0.2s ease;
+}
 
-    tbody tr:last-child td {
-        border-bottom: none;
-    }
+.control-group select:focus,
+.control-group input:focus {
+outline: none;
+border-color: var(--accent-glow);
+box-shadow: 0 0 10px rgba(0, 170, 255, 0.4);
+}
 
-    footer {
-        background-color: var(--header-bg);
-        color: rgba(255,255,255,0.7);
-        text-align: center;
-        padding: 1rem;
-        margin-top: 3rem;
-    }
+.control-group select option {
+background-color: #1c212e;
+color: var(--text-primary);
+}
+
+.table-wrapper {
+overflow-x: auto;
+background: var(--glass-bg);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border-radius: 12px;
+border: 1px solid var(--border-color);
+padding: 0.5rem;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+}
+
+th, td {
+padding: 1rem 1.2rem;
+text-align: left;
+white-space: nowrap;
+border-bottom: 1px solid var(--border-color);
+}
+
+th {
+color: var(--text-primary);
+font-weight: 600;
+cursor: pointer;
+user-select: none;
+position: relative;
+text-transform: uppercase;
+font-size: 0.8rem;
+letter-spacing: 0.5px;
+}
+
+th .sort-indicator {
+color: var(--accent-glow);
+font-size: 1.2em;
+margin-left: 5px;
+}
+
+td {
+color: var(--text-secondary);
+}
+td:first-child {
+font-weight: 500;
+color: var(--text-primary);
+}
+
+tbody tr {
+transition: background-color 0.2s ease;
+}
+
+tbody tr:last-child td {
+border-bottom: none;
+}
+
+tbody tr:hover {
+background-color: var(--hover-bg);
+}
+
+footer {
+text-align: center;
+padding: 2rem;
+margin-top: 2rem;
+color: var(--text-secondary);
+font-size: 0.9rem;
+}
+
+footer a {
+color: var(--accent-glow);
+text-decoration: none;
+}
 </style>
-
-    
-
 </head>
 <body>
 <header>
-<h1>База данных серверных процессоров</h1>
+<h1>База данных Серверных Процессоров</h1>
+<p>Интерактивный инструмент для исследования и сравнения CPU</p>
 </header>
 <div class="container">
-<div class="controls">
-<label for="brandFilter">Фильтр по производителю:</label>
-<select id="brandFilter" onchange="filterTable()">
+<div class="controls-bar">
+<div class="control-group">
+<label for="searchBox">Поиск:</label>
+<input type="text" id="searchBox" oninput="applyFilters()" placeholder="Напр. EPYC 9654...">
+</div>
+<div class="control-group">
+<label for="brandFilter">Бренд:</label>
+<select id="brandFilter" onchange="applyFilters()">
 <option value="all">Все бренды</option>
 <option value="Intel">Intel</option>
 <option value="AMD">AMD</option>
 <option value="Ampere">Ampere</option>
 </select>
 </div>
-
-      
+</div>
+<div class="table-wrapper">
 <table>
-    <thead>
-        <tr>
-            <th onclick="sortTable(0)">Model<span class="sort-indicator"></span></th>
-            <th onclick="sortTable(1)">Manufacturer<span class="sort-indicator"></span></th>
-            <th onclick="sortTable(2)">Cores<span class="sort-indicator"></span></th>
-            <th onclick="sortTable(3)">Threads<span class="sort-indicator"></span></th>
-            <th onclick="sortTable(4)">Base Clock<span class="sort-indicator"></span></th>
-            <th onclick="sortTable(5)">Max Turbo Clock<span class="sort-indicator"></span></th>
-            <th onclick="sortTable(6)">TDP<span class="sort-indicator"></span></th>
-        </tr>
-    </thead>
-    <tbody id="processorTableBody">
-        <!-- Existing 44 processors -->
-        <tr><td>Intel Xeon E5-2699 v4</td><td>Intel</td><td>22</td><td>44</td><td>2.2 GHz</td><td>3.6 GHz</td><td>145 W</td></tr>
-        <tr><td>AMD EPYC 7742</td><td>AMD</td><td>64</td><td>128</td><td>2.25 GHz</td><td>3.4 GHz</td><td>225 W</td></tr>
-        <tr><td>Intel Xeon Platinum 8280</td><td>Intel</td><td>28</td><td>56</td><td>2.7 GHz</td><td>4.0 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 7453</td><td>AMD</td><td>28</td><td>56</td><td>2.75 GHz</td><td>4.0 GHz</td><td>225 W</td></tr>
-        <tr><td>AMD EPYC 9654</td><td>AMD</td><td>96</td><td>192</td><td>2.25 GHz</td><td>3.7 GHz</td><td>360 W</td></tr>
-        <tr><td>Intel Xeon Platinum 8480+</td><td>Intel</td><td>56</td><td>112</td><td>2.0 GHz</td><td>3.8 GHz</td><td>350 W</td></tr>
-        <tr><td>AMD EPYC 7763</td><td>AMD</td><td>64</td><td>128</td><td>2.45 GHz</td><td>3.5 GHz</td><td>280 W</td></tr>
-        <tr><td>Intel Xeon Platinum 8380</td><td>Intel</td><td>40</td><td>80</td><td>2.3 GHz</td><td>3.4 GHz</td><td>270 W</td></tr>
-        <tr><td>Ampere Altra Max M128-30</td><td>Ampere</td><td>128</td><td>128</td><td>3.0 GHz</td><td>3.0 GHz</td><td>250 W</td></tr>
-        <tr><td>AMD EPYC 7J13</td><td>AMD</td><td>64</td><td>128</td><td>2.55 GHz</td><td>3.7 GHz</td><td>280W</td></tr>
-        <tr><td>Intel Xeon Gold 6348</td><td>Intel</td><td>28</td><td>56</td><td>2.6 GHz</td><td>3.5 GHz</td><td>235 W</td></tr>
-        <tr><td>AMD EPYC 75F3</td><td>AMD</td><td>32</td><td>64</td><td>2.95 GHz</td><td>4.0 GHz</td><td>280 W</td></tr>
-        <tr><td>Intel Xeon Gold 6248R</td><td>Intel</td><td>24</td><td>48</td><td>3.0 GHz</td><td>4.0 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 7H12</td><td>AMD</td><td>64</td><td>128</td><td>2.6 GHz</td><td>3.3 GHz</td><td>280 W</td></tr>
-        <tr><td>Intel Xeon Silver 4314</td><td>Intel</td><td>16</td><td>32</td><td>2.4 GHz</td><td>3.4 GHz</td><td>135 W</td></tr>
-        <tr><td>AMD EPYC 7313</td><td>AMD</td><td>16</td><td>32</td><td>3.0 GHz</td><td>3.7 GHz</td><td>155 W</td></tr>
-        <tr><td>Intel Xeon Silver 4216</td><td>Intel</td><td>16</td><td>32</td><td>2.1 GHz</td><td>3.2 GHz</td><td>100 W</td></tr>
-        <tr><td>AMD EPYC 72F3</td><td>AMD</td><td>8</td><td>16</td><td>3.7 GHz</td><td>4.1 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon Bronze 3204</td><td>Intel</td><td>6</td><td>6</td><td>1.9 GHz</td><td>1.9 GHz</td><td>85 W</td></tr>
-        <tr><td>AMD EPYC 9374F</td><td>AMD</td><td>32</td><td>64</td><td>3.85 GHz</td><td>4.3 GHz</td><td>320 W</td></tr>
-        <tr><td>Intel Xeon Platinum 8592+</td><td>Intel</td><td>64</td><td>128</td><td>1.9 GHz</td><td>3.9 GHz</td><td>385 W</td></tr>
-        <tr><td>Ampere Altra Q80-33</td><td>Ampere</td><td>80</td><td>80</td><td>3.3 GHz</td><td>3.3 GHz</td><td>210 W</td></tr>
-        <tr><td>AMD EPYC 7773X</td><td>AMD</td><td>64</td><td>128</td><td>2.2 GHz</td><td>3.5 GHz</td><td>280 W</td></tr>
-        <tr><td>Intel Xeon Max 9480</td><td>Intel</td><td>56</td><td>112</td><td>1.9 GHz</td><td>3.5 GHz</td><td>350 W</td></tr>
-        <tr><td>AMD EPYC 8534P</td><td>AMD</td><td>64</td><td>128</td><td>2.3 GHz</td><td>3.1 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon Gold 5416S</td><td>Intel</td><td>16</td><td>32</td><td>2.0 GHz</td><td>4.0 GHz</td><td>150 W</td></tr>
-        <tr><td>AMD EPYC 7502</td><td>AMD</td><td>32</td><td>64</td><td>2.5 GHz</td><td>3.35 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon Gold 6330</td><td>Intel</td><td>28</td><td>56</td><td>2.0 GHz</td><td>3.1 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 7662</td><td>AMD</td><td>64</td><td>128</td><td>2.0 GHz</td><td>3.3 GHz</td><td>225 W</td></tr>
-        <tr><td>Intel Xeon E-2388G</td><td>Intel</td><td>8</td><td>16</td><td>3.2 GHz</td><td>5.1 GHz</td><td>95 W</td></tr>
-        <tr><td>AMD Ryzen Threadripper PRO 7995WX</td><td>AMD</td><td>96</td><td>192</td><td>2.5 GHz</td><td>5.1 GHz</td><td>350 W</td></tr>
-        <tr><td>Intel Xeon W-3375</td><td>Intel</td><td>38</td><td>76</td><td>2.5 GHz</td><td>4.0 GHz</td><td>270 W</td></tr>
-        <tr><td>AMD EPYC 9124</td><td>AMD</td><td>16</td><td>32</td><td>3.0 GHz</td><td>3.7 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon Silver 4410Y</td><td>Intel</td><td>12</td><td>24</td><td>2.0 GHz</td><td>3.9 GHz</td><td>150 W</td></tr>
-        <tr><td>Intel Xeon E5-2670 v3</td><td>Intel</td><td>12</td><td>24</td><td>2.3 GHz</td><td>3.1 GHz</td><td>120 W</td></tr>
-        <tr><td>AMD EPYC 7402P</td><td>AMD</td><td>24</td><td>48</td><td>2.8 GHz</td><td>3.35 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon Gold 5218</td><td>Intel</td><td>16</td><td>32</td><td>2.3 GHz</td><td>3.9 GHz</td><td>125 W</td></tr>
-        <tr><td>AMD EPYC 7302P</td><td>AMD</td><td>16</td><td>32</td><td>3.0 GHz</td><td>3.3 GHz</td><td>155 W</td></tr>
-        <tr><td>Intel Xeon Platinum 8168</td><td>Intel</td><td>24</td><td>48</td><td>2.7 GHz</td><td>3.7 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 7532</td><td>AMD</td><td>32</td><td>64</td><td>2.4 GHz</td><td>3.3 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon Gold 6138</td><td>Intel</td><td>20</td><td>40</td><td>2.0 GHz</td><td>3.7 GHz</td><td>125 W</td></tr>
-        <tr><td>AMD EPYC 7282</td><td>AMD</td><td>16</td><td>32</td><td>2.8 GHz</td><td>3.2 GHz</td><td>120 W</td></tr>
-        <tr><td>Intel Xeon E7-8890 v4</td><td>Intel</td><td>24</td><td>48</td><td>2.2 GHz</td><td>3.4 GHz</td><td>165 W</td></tr>
-        
-        <!-- НОВЫЕ 120 ПРОЦЕССОРОВ НАЧИНАЮТСЯ ЗДЕСЬ -->
-        <tr><td>AMD EPYC 9684X</td><td>AMD</td><td>96</td><td>192</td><td>2.55 GHz</td><td>3.7 GHz</td><td>400 W</td></tr>
-        <tr><td>Intel Xeon Platinum 8558</td><td>Intel</td><td>48</td><td>96</td><td>2.1 GHz</td><td>4.0 GHz</td><td>330 W</td></tr>
-        <tr><td>AMD EPYC 9554</td><td>AMD</td><td>64</td><td>128</td><td>3.1 GHz</td><td>3.75 GHz</td><td>360 W</td></tr>
-        <tr><td>Intel Xeon Gold 6548Y+</td><td>Intel</td><td>32</td><td>64</td><td>2.5 GHz</td><td>4.1 GHz</td><td>250 W</td></tr>
-        <tr><td>AMD EPYC 9474F</td><td>AMD</td><td>48</td><td>96</td><td>3.6 GHz</td><td>4.1 GHz</td><td>360 W</td></tr>
-        <tr><td>Intel Xeon Gold 5515+</td><td>Intel</td><td>8</td><td>16</td><td>3.2 GHz</td><td>4.1 GHz</td><td>165 W</td></tr>
-        <tr><td>AMD EPYC 7543</td><td>AMD</td><td>32</td><td>64</td><td>2.8 GHz</td><td>3.7 GHz</td><td>225 W</td></tr>
-        <tr><td>Intel Xeon Gold 6338</td><td>Intel</td><td>32</td><td>64</td><td>2.0 GHz</td><td>3.2 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 7443P</td><td>AMD</td><td>24</td><td>48</td><td>2.85 GHz</td><td>4.0 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon Silver 4316</td><td>Intel</td><td>20</td><td>40</td><td>2.3 GHz</td><td>3.4 GHz</td><td>150 W</td></tr>
-        <tr><td>AMD EPYC 7343</td><td>AMD</td><td>16</td><td>32</td><td>3.2 GHz</td><td>3.9 GHz</td><td>190 W</td></tr>
-        <tr><td>Intel Xeon Gold 5320</td><td>Intel</td><td>26</td><td>52</td><td>2.2 GHz</td><td>3.4 GHz</td><td>185 W</td></tr>
-        <tr><td>AMD EPYC 7232P</td><td>AMD</td><td>8</td><td>16</td><td>3.1 GHz</td><td>3.2 GHz</td><td>120 W</td></tr>
-        <tr><td>Intel Xeon Bronze 3408U</td><td>Intel</td><td>8</td><td>8</td><td>1.8 GHz</td><td>3.3 GHz</td><td>125 W</td></tr>
-        <tr><td>AMD EPYC 8324P</td><td>AMD</td><td>32</td><td>64</td><td>2.55 GHz</td><td>3.0 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon Gold 6444Y</td><td>Intel</td><td>16</td><td>32</td><td>3.6 GHz</td><td>4.1 GHz</td><td>270 W</td></tr>
-        <tr><td>AMD EPYC 7642</td><td>AMD</td><td>48</td><td>96</td><td>2.3 GHz</td><td>3.3 GHz</td><td>225 W</td></tr>
-        <tr><td>Intel Xeon Gold 6240</td><td>Intel</td><td>18</td><td>36</td><td>2.6 GHz</td><td>3.9 GHz</td><td>150 W</td></tr>
-        <tr><td>AMD EPYC 7542</td><td>AMD</td><td>32</td><td>64</td><td>2.9 GHz</td><td>3.4 GHz</td><td>225 W</td></tr>
-        <tr><td>Intel Xeon Silver 4210R</td><td>Intel</td><td>10</td><td>20</td><td>2.4 GHz</td><td>3.2 GHz</td><td>100 W</td></tr>
-        <tr><td>AMD EPYC 7352</td><td>AMD</td><td>24</td><td>48</td><td>2.3 GHz</td><td>3.2 GHz</td><td>155 W</td></tr>
-        <tr><td>Intel Xeon W-2295</td><td>Intel</td><td>18</td><td>36</td><td>3.0 GHz</td><td>4.8 GHz</td><td>165 W</td></tr>
-        <tr><td>AMD Ryzen Threadripper PRO 5995WX</td><td>AMD</td><td>64</td><td>128</td><td>2.7 GHz</td><td>4.5 GHz</td><td>280 W</td></tr>
-        <tr><td>Intel Xeon E-2278G</td><td>Intel</td><td>8</td><td>16</td><td>3.4 GHz</td><td>5.0 GHz</td><td>80 W</td></tr>
-        <tr><td>AMD EPYC 7702P</td><td>AMD</td><td>64</td><td>128</td><td>2.0 GHz</td><td>3.35 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon Platinum 8176</td><td>Intel</td><td>28</td><td>56</td><td>2.1 GHz</td><td>3.8 GHz</td><td>165 W</td></tr>
-        <tr><td>AMD EPYC 7452</td><td>AMD</td><td>32</td><td>64</td><td>2.35 GHz</td><td>3.35 GHz</td><td>155 W</td></tr>
-        <tr><td>Intel Xeon Gold 6148</td><td>Intel</td><td>20</td><td>40</td><td>2.4 GHz</td><td>3.7 GHz</td><td>150 W</td></tr>
-        <tr><td>AMD EPYC 7252</td><td>AMD</td><td>8</td><td>16</td><td>3.1 GHz</td><td>3.2 GHz</td><td>120 W</td></tr>
-        <tr><td>Intel Xeon Silver 4114</td><td>Intel</td><td>10</td><td>20</td><td>2.2 GHz</td><td>3.0 GHz</td><td>85 W</td></tr>
-        <tr><td>AMD EPYC 7713</td><td>AMD</td><td>64</td><td>128</td><td>2.0 GHz</td><td>3.675 GHz</td><td>225 W</td></tr>
-        <tr><td>Intel Xeon Platinum 8358</td><td>Intel</td><td>32</td><td>64</td><td>2.6 GHz</td><td>3.4 GHz</td><td>250 W</td></tr>
-        <tr><td>AMD EPYC 7513</td><td>AMD</td><td>32</td><td>64</td><td>2.6 GHz</td><td>3.65 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon Gold 6336Y</td><td>Intel</td><td>24</td><td>48</td><td>2.4 GHz</td><td>3.6 GHz</td><td>185 W</td></tr>
-        <tr><td>AMD EPYC 73F3</td><td>AMD</td><td>16</td><td>32</td><td>3.5 GHz</td><td>4.0 GHz</td><td>240 W</td></tr>
-        <tr><td>Intel Xeon Gold 5318Y</td><td>Intel</td><td>24</td><td>48</td><td>2.1 GHz</td><td>3.4 GHz</td><td>165 W</td></tr>
-        <tr><td>AMD EPYC 7283</td><td>AMD</td><td>16</td><td>32</td><td>2.6 GHz</td><td>3.5 GHz</td><td>155 W</td></tr>
-        <tr><td>Intel Xeon Silver 4309Y</td><td>Intel</td><td>8</td><td>16</td><td>2.8 GHz</td><td>3.6 GHz</td><td>105 W</td></tr>
-        <tr><td>AMD EPYC 7F72</td><td>AMD</td><td>24</td><td>48</td><td>3.2 GHz</td><td>3.7 GHz</td><td>240 W</td></tr>
-        <tr><td>Intel Xeon Gold 6230R</td><td>Intel</td><td>26</td><td>52</td><td>2.1 GHz</td><td>4.0 GHz</td><td>150 W</td></tr>
-        <tr><td>AMD EPYC 7502P</td><td>AMD</td><td>32</td><td>64</td><td>2.5 GHz</td><td>3.35 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon Gold 5220R</td><td>Intel</td><td>24</td><td>48</td><td>2.2 GHz</td><td>4.0 GHz</td><td>150 W</td></tr>
-        <tr><td>AMD EPYC 7402</td><td>AMD</td><td>24</td><td>48</td><td>2.8 GHz</td><td>3.35 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon Silver 4214R</td><td>Intel</td><td>12</td><td>24</td><td>2.4 GHz</td><td>3.5 GHz</td><td>100 W</td></tr>
-        <tr><td>AMD EPYC 7302</td><td>AMD</td><td>16</td><td>32</td><td>3.0 GHz</td><td>3.3 GHz</td><td>155 W</td></tr>
-        <tr><td>Intel Xeon Bronze 3206R</td><td>Intel</td><td>8</td><td>8</td><td>1.9 GHz</td><td>1.9 GHz</td><td>85 W</td></tr>
-        <tr><td>AMD EPYC 7262</td><td>AMD</td><td>8</td><td>16</td><td>3.2 GHz</td><td>3.4 GHz</td><td>155 W</td></tr>
-        <tr><td>Intel Xeon Gold 6130</td><td>Intel</td><td>16</td><td>32</td><td>2.1 GHz</td><td>3.7 GHz</td><td>125 W</td></tr>
-        <tr><td>AMD EPYC 7371</td><td>AMD</td><td>16</td><td>32</td><td>3.1 GHz</td><td>3.8 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon Gold 5120</td><td>Intel</td><td>14</td><td>28</td><td>2.2 GHz</td><td>3.2 GHz</td><td>105 W</td></tr>
-        <tr><td>AMD EPYC 7272</td><td>AMD</td><td>12</td><td>24</td><td>2.9 GHz</td><td>3.2 GHz</td><td>120 W</td></tr>
-        <tr><td>Intel Xeon Silver 4110</td><td>Intel</td><td>8</td><td>16</td><td>2.1 GHz</td><td>3.0 GHz</td><td>85 W</td></tr>
-        <tr><td>AMD EPYC 7451</td><td>AMD</td><td>24</td><td>48</td><td>2.3 GHz</td><td>3.2 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon Platinum 8160</td><td>Intel</td><td>24</td><td>48</td><td>2.1 GHz</td><td>3.7 GHz</td><td>150 W</td></tr>
-        <tr><td>AMD EPYC 7351P</td><td>AMD</td><td>16</td><td>32</td><td>2.4 GHz</td><td>2.9 GHz</td><td>170 W</td></tr>
-        <tr><td>Intel Xeon Gold 6132</td><td>Intel</td><td>14</td><td>28</td><td>3.2 GHz</td><td>3.7 GHz</td><td>140 W</td></tr>
-        <tr><td>AMD EPYC 7251</td><td>AMD</td><td>8</td><td>16</td><td>2.1 GHz</td><td>2.9 GHz</td><td>120 W</td></tr>
-        <tr><td>Intel Xeon E5-2697 v4</td><td>Intel</td><td>18</td><td>36</td><td>2.3 GHz</td><td>3.6 GHz</td><td>145 W</td></tr>
-        <tr><td>AMD EPYC 9354</td><td>AMD</td><td>32</td><td>64</td><td>3.25 GHz</td><td>3.8 GHz</td><td>280 W</td></tr>
-        <tr><td>Intel Xeon Max 9468</td><td>Intel</td><td>48</td><td>96</td><td>2.1 GHz</td><td>3.5 GHz</td><td>350 W</td></tr>
-        <tr><td>AMD EPYC 9274F</td><td>AMD</td><td>24</td><td>48</td><td>4.05 GHz</td><td>4.3 GHz</td><td>320 W</td></tr>
-        <tr><td>Intel Xeon Gold 6430</td><td>Intel</td><td>32</td><td>64</td><td>2.1 GHz</td><td>3.4 GHz</td><td>270 W</td></tr>
-        <tr><td>AMD EPYC 9174F</td><td>AMD</td><td>16</td><td>32</td><td>4.1 GHz</td><td>4.4 GHz</td><td>320 W</td></tr>
-        <tr><td>Intel Xeon Silver 4416+</td><td>Intel</td><td>20</td><td>40</td><td>2.0 GHz</td><td>3.5 GHz</td><td>165 W</td></tr>
-        <tr><td>AMD EPYC 8534PN</td><td>AMD</td><td>64</td><td>128</td><td>2.0 GHz</td><td>3.1 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon D-2796TE</td><td>Intel</td><td>20</td><td>20</td><td>2.0 GHz</td><td>3.4 GHz</td><td>118 W</td></tr>
-        <tr><td>AMD EPYC 8324PN</td><td>AMD</td><td>32</td><td>64</td><td>2.3 GHz</td><td>3.0 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon W-3495X</td><td>Intel</td><td>56</td><td>112</td><td>1.9 GHz</td><td>4.8 GHz</td><td>350 W</td></tr>
-        <tr><td>AMD Ryzen Threadripper PRO 5975WX</td><td>AMD</td><td>32</td><td>64</td><td>3.6 GHz</td><td>4.5 GHz</td><td>280 W</td></tr>
-        <tr><td>Intel Xeon W-3475X</td><td>Intel</td><td>36</td><td>72</td><td>2.5 GHz</td><td>4.8 GHz</td><td>300 W</td></tr>
-        <tr><td>AMD EPYC 7573X</td><td>AMD</td><td>32</td><td>64</td><td>2.8 GHz</td><td>3.6 GHz</td><td>280 W</td></tr>
-        <tr><td>Intel Xeon Gold 6354</td><td>Intel</td><td>18</td><td>36</td><td>3.0 GHz</td><td>3.6 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 7473X</td><td>AMD</td><td>24</td><td>48</td><td>2.8 GHz</td><td>3.7 GHz</td><td>240 W</td></tr>
-        <tr><td>Intel Xeon Gold 5317</td><td>Intel</td><td>12</td><td>24</td><td>3.0 GHz</td><td>3.6 GHz</td><td>150 W</td></tr>
-        <tr><td>AMD EPYC 7373X</td><td>AMD</td><td>16</td><td>32</td><td>3.05 GHz</td><td>3.8 GHz</td><td>240 W</td></tr>
-        <tr><td>Intel Xeon E-2386G</td><td>Intel</td><td>6</td><td>12</td><td>3.5 GHz</td><td>5.1 GHz</td><td>95 W</td></tr>
-        <tr><td>AMD EPYC 7F52</td><td>AMD</td><td>16</td><td>32</td><td>3.5 GHz</td><td>3.9 GHz</td><td>240 W</td></tr>
-        <tr><td>Intel Xeon W-1390P</td><td>Intel</td><td>8</td><td>16</td><td>3.5 GHz</td><td>5.3 GHz</td><td>125 W</td></tr>
-        <tr><td>AMD EPYC 7F32</td><td>AMD</td><td>8</td><td>16</td><td>3.7 GHz</td><td>3.9 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon Gold 6258R</td><td>Intel</td><td>28</td><td>56</td><td>2.7 GHz</td><td>4.0 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 7532P</td><td>AMD</td><td>32</td><td>64</td><td>2.4 GHz</td><td>3.3 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon Gold 6246R</td><td>Intel</td><td>16</td><td>32</td><td>3.4 GHz</td><td>4.1 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 7442</td><td>AMD</td><td>32</td><td>64</td><td>2.25 GHz</td><td>3.4 GHz</td><td>155 W</td></tr>
-        <tr><td>Intel Xeon Gold 5218R</td><td>Intel</td><td>20</td><td>40</td><td>2.1 GHz</td><td>4.0 GHz</td><td>125 W</td></tr>
-        <tr><td>AMD EPYC 7351</td><td>AMD</td><td>16</td><td>32</td><td>2.4 GHz</td><td>2.9 GHz</td><td>170 W</td></tr>
-        <tr><td>Intel Xeon Silver 4116</td><td>Intel</td><td>12</td><td>24</td><td>2.1 GHz</td><td>3.0 GHz</td><td>85 W</td></tr>
-        <tr><td>AMD EPYC 7601</td><td>AMD</td><td>32</td><td>64</td><td>2.2 GHz</td><td>3.2 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon E5-2680 v4</td><td>Intel</td><td>14</td><td>28</td><td>2.4 GHz</td><td>3.3 GHz</td><td>120 W</td></tr>
-        <tr><td>AMD EPYC 7551P</td><td>AMD</td><td>32</td><td>64</td><td>2.0 GHz</td><td>3.0 GHz</td><td>180 W</td></tr>
-        <tr><td>Intel Xeon E5-2650 v4</td><td>Intel</td><td>12</td><td>24</td><td>2.2 GHz</td><td>2.9 GHz</td><td>105 W</td></tr>
-        <tr><td>AMD EPYC 7401P</td><td>AMD</td><td>24</td><td>48</td><td>2.0 GHz</td><td>3.0 GHz</td><td>170 W</td></tr>
-        <tr><td>Intel Xeon E5-2630 v4</td><td>Intel</td><td>10</td><td>20</td><td>2.2 GHz</td><td>3.1 GHz</td><td>85 W</td></tr>
-        <tr><td>AMD EPYC 7301</td><td>AMD</td><td>16</td><td>32</td><td>2.2 GHz</td><td>2.7 GHz</td><td>170 W</td></tr>
-        <tr><td>Intel Xeon E5-2620 v4</td><td>Intel</td><td>8</td><td>16</td><td>2.1 GHz</td><td>3.0 GHz</td><td>85 W</td></tr>
-        <tr><td>AMD EPYC 7281</td><td>AMD</td><td>16</td><td>32</td><td>2.1 GHz</td><td>2.7 GHz</td><td>170 W</td></tr>
-        <tr><td>Intel Xeon E3-1270 v6</td><td>Intel</td><td>4</td><td>8</td><td>3.8 GHz</td><td>4.2 GHz</td><td>72 W</td></tr>
-        <tr><td>AMD Opteron 6386 SE</td><td>AMD</td><td>16</td><td>16</td><td>2.8 GHz</td><td>3.5 GHz</td><td>140 W</td></tr>
-        <tr><td>Intel Xeon Platinum 9282</td><td>Intel</td><td>56</td><td>112</td><td>2.6 GHz</td><td>3.8 GHz</td><td>400 W</td></tr>
-        <tr><td>AMD EPYC 9654P</td><td>AMD</td><td>96</td><td>192</td><td>2.4 GHz</td><td>3.7 GHz</td><td>360 W</td></tr>
-        <tr><td>Intel Xeon Platinum 9242</td><td>Intel</td><td>48</td><td>96</td><td>2.3 GHz</td><td>3.8 GHz</td><td>350 W</td></tr>
-        <tr><td>AMD EPYC 9534</td><td>AMD</td><td>64</td><td>128</td><td>2.45 GHz</td><td>3.7 GHz</td><td>280 W</td></tr>
-        <tr><td>Intel Xeon Gold 6438Y+</td><td>Intel</td><td>32</td><td>64</td><td>2.0 GHz</td><td>4.0 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 9454P</td><td>AMD</td><td>48</td><td>96</td><td>2.75 GHz</td><td>3.8 GHz</td><td>290 W</td></tr>
-        <tr><td>Intel Xeon Gold 5420+</td><td>Intel</td><td>28</td><td>56</td><td>2.0 GHz</td><td>3.8 GHz</td><td>205 W</td></tr>
-        <tr><td>AMD EPYC 9334</td><td>AMD</td><td>32</td><td>64</td><td>2.7 GHz</td><td>3.9 GHz</td><td>210 W</td></tr>
-        <tr><td>Intel Xeon Silver 4410T</td><td>Intel</td><td>10</td><td>20</td><td>2.9 GHz</td><td>3.9 GHz</td><td>150 W</td></tr>
-        <tr><td>AMD EPYC 9254</td><td>AMD</td><td>24</td><td>48</td><td>2.9 GHz</td><td>4.15 GHz</td><td>200 W</td></tr>
-        <tr><td>Intel Xeon Bronze 3408</td><td>Intel</td><td>8</td><td>16</td><td>1.8 GHz</td><td>3.3 GHz</td><td>125 W</td></tr>
-        <tr><td>AMD EPYC 8224P</td><td>AMD</td><td>24</td><td>48</td><td>2.55 GHz</td><td>3.0 GHz</td><td>160 W</td></tr>
-        <tr><td>Intel Xeon D-1747NTE</td><td>Intel</td><td>10</td><td>20</td><td>2.5 GHz</td><td>3.5 GHz</td><td>90 W</td></tr>
-        <tr><td>AMD EPYC 8124P</td><td>AMD</td><td>16</td><td>32</td><td>2.45 GHz</td><td>3.0 GHz</td><td>130 W</td></tr>
-        <tr><td>Intel Xeon E-2374G</td><td>Intel</td><td>4</td><td>8</td><td>3.7 GHz</td><td>5.0 GHz</td><td>80 W</td></tr>
-        <tr><td>AMD EPYC 8024P</td><td>AMD</td><td>8</td><td>16</td><td>2.4 GHz</td><td>3.0 GHz</td><td>90 W</td></tr>
-    </tbody>
+<thead>
+<tr>
+<th onclick="sortTable(0)">Model<span class="sort-indicator"></span></th>
+<th onclick="sortTable(1)">Manufacturer<span class="sort-indicator"></span></th>
+<th onclick="sortTable(2)">Cores<span class="sort-indicator"></span></th>
+<th onclick="sortTable(3)">Threads<span class="sort-indicator"></span></th>
+<th onclick="sortTable(4)">Base Clock<span class="sort-indicator"></span></th>
+<th onclick="sortTable(5)">Max Turbo Clock<span class="sort-indicator"></span></th>
+<th onclick="sortTable(6)">L3 Cache (MB)<span class="sort-indicator"></span></th>
+<th onclick="sortTable(7)">TDP (W)<span class="sort-indicator"></span></th>
+</tr>
+</thead>
+<tbody id="processorTableBody">
+<!-- Data is inserted here by the script -->
+</tbody>
 </table>
-
-    
-
-
+</div>
 </div>
 <footer>
-<p>© 2025 База данных серверных процессоров</p>
+<p>© 2025 Проект "База данных серверных процессоров".</p>
 </footer>
 <script>
+const processorData = [
+{ model: "Intel Xeon E5-2699 v4", manufacturer: "Intel", cores: 22, threads: 44, base_clock: "2.2 GHz", max_turbo: "3.6 GHz", l3_cache: 55, tdp: "145 W" },
+{ model: "AMD EPYC 7742", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.25 GHz", max_turbo: "3.4 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon Platinum 8280", manufacturer: "Intel", cores: 28, threads: 56, base_clock: "2.7 GHz", max_turbo: "4.0 GHz", l3_cache: 38.5, tdp: "205 W" },
+{ model: "AMD EPYC 7453", manufacturer: "AMD", cores: 28, threads: 56, base_clock: "2.75 GHz", max_turbo: "4.0 GHz", l3_cache: 64, tdp: "225 W" },
+{ model: "AMD EPYC 9654", manufacturer: "AMD", cores: 96, threads: 192, base_clock: "2.25 GHz", max_turbo: "3.7 GHz", l3_cache: 384, tdp: "360 W" },
+{ model: "Intel Xeon Platinum 8480+", manufacturer: "Intel", cores: 56, threads: 112, base_clock: "2.0 GHz", max_turbo: "3.8 GHz", l3_cache: 105, tdp: "350 W" },
+{ model: "AMD EPYC 7763", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.45 GHz", max_turbo: "3.5 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Platinum 8380", manufacturer: "Intel", cores: 40, threads: 80, base_clock: "2.3 GHz", max_turbo: "3.4 GHz", l3_cache: 60, tdp: "270 W" },
+{ model: "Ampere Altra Max M128-30", manufacturer: "Ampere", cores: 128, threads: 128, base_clock: "3.0 GHz", max_turbo: "3.0 GHz", l3_cache: 128, tdp: "250 W" },
+{ model: "AMD EPYC 7J13", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.55 GHz", max_turbo: "3.7 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Gold 6348", manufacturer: "Intel", cores: 28, threads: 56, base_clock: "2.6 GHz", max_turbo: "3.5 GHz", l3_cache: 42, tdp: "235 W" },
+{ model: "AMD EPYC 75F3", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.95 GHz", max_turbo: "4.0 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Gold 6248R", manufacturer: "Intel", cores: 24, threads: 48, base_clock: "3.0 GHz", max_turbo: "4.0 GHz", l3_cache: 35.75, tdp: "205 W" },
+{ model: "AMD EPYC 7H12", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.6 GHz", max_turbo: "3.3 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Silver 4314", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.4 GHz", max_turbo: "3.4 GHz", l3_cache: 24, tdp: "135 W" },
+{ model: "AMD EPYC 7313", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.0 GHz", max_turbo: "3.7 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon Silver 4216", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.1 GHz", max_turbo: "3.2 GHz", l3_cache: 22, tdp: "100 W" },
+{ model: "AMD EPYC 72F3", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "3.7 GHz", max_turbo: "4.1 GHz", l3_cache: 256, tdp: "180 W" },
+{ model: "Intel Xeon Bronze 3204", manufacturer: "Intel", cores: 6, threads: 6, base_clock: "1.9 GHz", max_turbo: "1.9 GHz", l3_cache: 8.25, tdp: "85 W" },
+{ model: "AMD EPYC 9374F", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "3.85 GHz", max_turbo: "4.3 GHz", l3_cache: 256, tdp: "320 W" },
+{ model: "Intel Xeon Platinum 8592+", manufacturer: "Intel", cores: 64, threads: 128, base_clock: "1.9 GHz", max_turbo: "3.9 GHz", l3_cache: 320, tdp: "385 W" },
+{ model: "Ampere Altra Q80-33", manufacturer: "Ampere", cores: 80, threads: 80, base_clock: "3.3 GHz", max_turbo: "3.3 GHz", l3_cache: 64, tdp: "210 W" },
+{ model: "AMD EPYC 7773X", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.2 GHz", max_turbo: "3.5 GHz", l3_cache: 768, tdp: "280 W" },
+{ model: "Intel Xeon Max 9480", manufacturer: "Intel", cores: 56, threads: 112, base_clock: "1.9 GHz", max_turbo: "3.5 GHz", l3_cache: 112.5, tdp: "350 W" },
+{ model: "AMD EPYC 8534P", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.3 GHz", max_turbo: "3.1 GHz", l3_cache: 128, tdp: "200 W" },
+{ model: "Intel Xeon Gold 5416S", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.0 GHz", max_turbo: "4.0 GHz", l3_cache: 30, tdp: "150 W" },
+{ model: "AMD EPYC 7502", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.5 GHz", max_turbo: "3.35 GHz", l3_cache: 128, tdp: "180 W" },
+{ model: "Intel Xeon Gold 6330", manufacturer: "Intel", cores: 28, threads: 56, base_clock: "2.0 GHz", max_turbo: "3.1 GHz", l3_cache: 42, tdp: "205 W" },
+{ model: "AMD EPYC 7662", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.0 GHz", max_turbo: "3.3 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon E-2388G", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.2 GHz", max_turbo: "5.1 GHz", l3_cache: 16, tdp: "95 W" },
+{ model: "AMD Ryzen Threadripper PRO 7995WX", manufacturer: "AMD", cores: 96, threads: 192, base_clock: "2.5 GHz", max_turbo: "5.1 GHz", l3_cache: 384, tdp: "350 W" },
+{ model: "Intel Xeon W-3375", manufacturer: "Intel", cores: 38, threads: 76, base_clock: "2.5 GHz", max_turbo: "4.0 GHz", l3_cache: 57, tdp: "270 W" },
+{ model: "AMD EPYC 9124", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.0 GHz", max_turbo: "3.7 GHz", l3_cache: 64, tdp: "200 W" },
+{ model: "Intel Xeon Silver 4410Y", manufacturer: "Intel", cores: 12, threads: 24, base_clock: "2.0 GHz", max_turbo: "3.9 GHz", l3_cache: 30, tdp: "150 W" },
+{ model: "Intel Xeon E5-2670 v3", manufacturer: "Intel", cores: 12, threads: 24, base_clock: "2.3 GHz", max_turbo: "3.1 GHz", l3_cache: 30, tdp: "120 W" },
+{ model: "AMD EPYC 7402P", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.8 GHz", max_turbo: "3.35 GHz", l3_cache: 128, tdp: "180 W" },
+{ model: "Intel Xeon Gold 5218", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.3 GHz", max_turbo: "3.9 GHz", l3_cache: 22, tdp: "125 W" },
+{ model: "AMD EPYC 7302P", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.0 GHz", max_turbo: "3.3 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon Platinum 8168", manufacturer: "Intel", cores: 24, threads: 48, base_clock: "2.7 GHz", max_turbo: "3.7 GHz", l3_cache: 33, tdp: "205 W" },
+{ model: "AMD EPYC 7532", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.4 GHz", max_turbo: "3.3 GHz", l3_cache: 256, tdp: "200 W" },
+{ model: "Intel Xeon Gold 6138", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.0 GHz", max_turbo: "3.7 GHz", l3_cache: 27.5, tdp: "125 W" },
+{ model: "AMD EPYC 7282", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.8 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "120 W" },
+{ model: "Intel Xeon E7-8890 v4", manufacturer: "Intel", cores: 24, threads: 48, base_clock: "2.2 GHz", max_turbo: "3.4 GHz", l3_cache: 60, tdp: "165 W" },
+{ model: "AMD EPYC 9684X", manufacturer: "AMD", cores: 96, threads: 192, base_clock: "2.55 GHz", max_turbo: "3.7 GHz", l3_cache: 1152, tdp: "400 W" },
+{ model: "Intel Xeon Platinum 8558", manufacturer: "Intel", cores: 48, threads: 96, base_clock: "2.1 GHz", max_turbo: "4.0 GHz", l3_cache: 260, tdp: "330 W" },
+{ model: "AMD EPYC 9554", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "3.1 GHz", max_turbo: "3.75 GHz", l3_cache: 256, tdp: "360 W" },
+{ model: "Intel Xeon Gold 6548Y+", manufacturer: "Intel", cores: 32, threads: 64, base_clock: "2.5 GHz", max_turbo: "4.1 GHz", l3_cache: 60, tdp: "250 W" },
+{ model: "AMD EPYC 9474F", manufacturer: "AMD", cores: 48, threads: 96, base_clock: "3.6 GHz", max_turbo: "4.1 GHz", l3_cache: 256, tdp: "360 W" },
+{ model: "Intel Xeon Gold 5515+", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.2 GHz", max_turbo: "4.1 GHz", l3_cache: 22.5, tdp: "165 W" },
+{ model: "AMD EPYC 7543", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.8 GHz", max_turbo: "3.7 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon Gold 6338", manufacturer: "Intel", cores: 32, threads: 64, base_clock: "2.0 GHz", max_turbo: "3.2 GHz", l3_cache: 48, tdp: "205 W" },
+{ model: "AMD EPYC 7443P", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.85 GHz", max_turbo: "4.0 GHz", l3_cache: 128, tdp: "200 W" },
+{ model: "Intel Xeon Silver 4316", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.3 GHz", max_turbo: "3.4 GHz", l3_cache: 30, tdp: "150 W" },
+{ model: "AMD EPYC 7343", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.2 GHz", max_turbo: "3.9 GHz", l3_cache: 128, tdp: "190 W" },
+{ model: "Intel Xeon Gold 5320", manufacturer: "Intel", cores: 26, threads: 52, base_clock: "2.2 GHz", max_turbo: "3.4 GHz", l3_cache: 39, tdp: "185 W" },
+{ model: "AMD EPYC 7232P", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "3.1 GHz", max_turbo: "3.2 GHz", l3_cache: 32, tdp: "120 W" },
+{ model: "Intel Xeon Bronze 3408U", manufacturer: "Intel", cores: 8, threads: 8, base_clock: "1.8 GHz", max_turbo: "3.3 GHz", l3_cache: 22.5, tdp: "125 W" },
+{ model: "AMD EPYC 8324P", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.55 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon Gold 6444Y", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "3.6 GHz", max_turbo: "4.1 GHz", l3_cache: 45, tdp: "270 W" },
+{ model: "AMD EPYC 7642", manufacturer: "AMD", cores: 48, threads: 96, base_clock: "2.3 GHz", max_turbo: "3.3 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon Gold 6240", manufacturer: "Intel", cores: 18, threads: 36, base_clock: "2.6 GHz", max_turbo: "3.9 GHz", l3_cache: 24.75, tdp: "150 W" },
+{ model: "AMD EPYC 7542", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.9 GHz", max_turbo: "3.4 GHz", l3_cache: 128, tdp: "225 W" },
+{ model: "Intel Xeon Silver 4210R", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.4 GHz", max_turbo: "3.2 GHz", l3_cache: 13.75, tdp: "100 W" },
+{ model: "AMD EPYC 7352", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.3 GHz", max_turbo: "3.2 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon W-2295", manufacturer: "Intel", cores: 18, threads: 36, base_clock: "3.0 GHz", max_turbo: "4.8 GHz", l3_cache: 24.75, tdp: "165 W" },
+{ model: "AMD Ryzen Threadripper PRO 5995WX", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.7 GHz", max_turbo: "4.5 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon E-2278G", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.4 GHz", max_turbo: "5.0 GHz", l3_cache: 16, tdp: "80 W" },
+{ model: "AMD EPYC 7702P", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.0 GHz", max_turbo: "3.35 GHz", l3_cache: 256, tdp: "200 W" },
+{ model: "Intel Xeon Platinum 8176", manufacturer: "Intel", cores: 28, threads: 56, base_clock: "2.1 GHz", max_turbo: "3.8 GHz", l3_cache: 38.5, tdp: "165 W" },
+{ model: "AMD EPYC 7452", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.35 GHz", max_turbo: "3.35 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon Gold 6148", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.4 GHz", max_turbo: "3.7 GHz", l3_cache: 27.5, tdp: "150 W" },
+{ model: "AMD EPYC 7252", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "3.1 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "120 W" },
+{ model: "Intel Xeon Silver 4114", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.2 GHz", max_turbo: "3.0 GHz", l3_cache: 13.75, tdp: "85 W" },
+{ model: "AMD EPYC 7713", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.0 GHz", max_turbo: "3.675 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon Platinum 8358", manufacturer: "Intel", cores: 32, threads: 64, base_clock: "2.6 GHz", max_turbo: "3.4 GHz", l3_cache: 48, tdp: "250 W" },
+{ model: "AMD EPYC 7513", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.6 GHz", max_turbo: "3.65 GHz", l3_cache: 128, tdp: "200 W" },
+{ model: "Intel Xeon Gold 6336Y", manufacturer: "Intel", cores: 24, threads: 48, base_clock: "2.4 GHz", max_turbo: "3.6 GHz", l3_cache: 36, tdp: "185 W" },
+{ model: "AMD EPYC 73F3", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.5 GHz", max_turbo: "4.0 GHz", l3_cache: 256, tdp: "240 W" },
+{ model: "Intel Xeon Gold 5318Y", manufacturer: "Intel", cores: 24, threads: 48, base_clock: "2.1 GHz", max_turbo: "3.4 GHz", l3_cache: 36, tdp: "165 W" },
+{ model: "AMD EPYC 7283", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.6 GHz", max_turbo: "3.5 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon Silver 4309Y", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "2.8 GHz", max_turbo: "3.6 GHz", l3_cache: 12, tdp: "105 W" },
+{ model: "AMD EPYC 7F72", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "3.2 GHz", max_turbo: "3.7 GHz", l3_cache: 192, tdp: "240 W" },
+{ model: "Intel Xeon Gold 6230R", manufacturer: "Intel", cores: 26, threads: 52, base_clock: "2.1 GHz", max_turbo: "4.0 GHz", l3_cache: 35.75, tdp: "150 W" },
+{ model: "AMD EPYC 7502P", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.5 GHz", max_turbo: "3.35 GHz", l3_cache: 128, tdp: "180 W" },
+{ model: "Intel Xeon Gold 5220R", manufacturer: "Intel", cores: 24, threads: 48, base_clock: "2.2 GHz", max_turbo: "4.0 GHz", l3_cache: 35.75, tdp: "150 W" },
+{ model: "AMD EPYC 7402", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.8 GHz", max_turbo: "3.35 GHz", l3_cache: 128, tdp: "180 W" },
+{ model: "Intel Xeon Silver 4214R", manufacturer: "Intel", cores: 12, threads: 24, base_clock: "2.4 GHz", max_turbo: "3.5 GHz", l3_cache: 16.5, tdp: "100 W" },
+{ model: "AMD EPYC 7302", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.0 GHz", max_turbo: "3.3 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon Bronze 3206R", manufacturer: "Intel", cores: 8, threads: 8, base_clock: "1.9 GHz", max_turbo: "1.9 GHz", l3_cache: 11, tdp: "85 W" },
+{ model: "AMD EPYC 7262", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "3.2 GHz", max_turbo: "3.4 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon Gold 6130", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.1 GHz", max_turbo: "3.7 GHz", l3_cache: 22, tdp: "125 W" },
+{ model: "AMD EPYC 7371", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.1 GHz", max_turbo: "3.8 GHz", l3_cache: 64, tdp: "200 W" },
+{ model: "Intel Xeon Gold 5120", manufacturer: "Intel", cores: 14, threads: 28, base_clock: "2.2 GHz", max_turbo: "3.2 GHz", l3_cache: 19.25, tdp: "105 W" },
+{ model: "AMD EPYC 7272", manufacturer: "AMD", cores: 12, threads: 24, base_clock: "2.9 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "120 W" },
+{ model: "Intel Xeon Silver 4110", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "2.1 GHz", max_turbo: "3.0 GHz", l3_cache: 11, tdp: "85 W" },
+{ model: "AMD EPYC 7451", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.3 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon Platinum 8160", manufacturer: "Intel", cores: 24, threads: 48, base_clock: "2.1 GHz", max_turbo: "3.7 GHz", l3_cache: 33, tdp: "150 W" },
+{ model: "AMD EPYC 7351P", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.4 GHz", max_turbo: "2.9 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon Gold 6132", manufacturer: "Intel", cores: 14, threads: 28, base_clock: "3.2 GHz", max_turbo: "3.7 GHz", l3_cache: 19.25, tdp: "140 W" },
+{ model: "AMD EPYC 7251", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "2.1 GHz", max_turbo: "2.9 GHz", l3_cache: 32, tdp: "120 W" },
+{ model: "Intel Xeon E5-2697 v4", manufacturer: "Intel", cores: 18, threads: 36, base_clock: "2.3 GHz", max_turbo: "3.6 GHz", l3_cache: 45, tdp: "145 W" },
+{ model: "AMD EPYC 9354", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "3.25 GHz", max_turbo: "3.8 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Max 9468", manufacturer: "Intel", cores: 48, threads: 96, base_clock: "2.1 GHz", max_turbo: "3.5 GHz", l3_cache: 97.5, tdp: "350 W" },
+{ model: "AMD EPYC 9274F", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "4.05 GHz", max_turbo: "4.3 GHz", l3_cache: 256, tdp: "320 W" },
+{ model: "Intel Xeon Gold 6430", manufacturer: "Intel", cores: 32, threads: 64, base_clock: "2.1 GHz", max_turbo: "3.4 GHz", l3_cache: 60, tdp: "270 W" },
+{ model: "AMD EPYC 9174F", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "4.1 GHz", max_turbo: "4.4 GHz", l3_cache: 256, tdp: "320 W" },
+{ model: "Intel Xeon Silver 4416+", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.0 GHz", max_turbo: "3.5 GHz", l3_cache: 37.5, tdp: "165 W" },
+{ model: "AMD EPYC 8534PN", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.0 GHz", max_turbo: "3.1 GHz", l3_cache: 128, tdp: "200 W" },
+{ model: "Intel Xeon D-2796TE", manufacturer: "Intel", cores: 20, threads: 20, base_clock: "2.0 GHz", max_turbo: "3.4 GHz", l3_cache: 30, tdp: "118 W" },
+{ model: "AMD EPYC 8324PN", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.3 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon W-3495X", manufacturer: "Intel", cores: 56, threads: 112, base_clock: "1.9 GHz", max_turbo: "4.8 GHz", l3_cache: 105, tdp: "350 W" },
+{ model: "AMD Ryzen Threadripper PRO 5975WX", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "3.6 GHz", max_turbo: "4.5 GHz", l3_cache: 128, tdp: "280 W" },
+{ model: "Intel Xeon W-3475X", manufacturer: "Intel", cores: 36, threads: 72, base_clock: "2.5 GHz", max_turbo: "4.8 GHz", l3_cache: 75, tdp: "300 W" },
+{ model: "AMD EPYC 7573X", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.8 GHz", max_turbo: "3.6 GHz", l3_cache: 768, tdp: "280 W" },
+{ model: "Intel Xeon Gold 6354", manufacturer: "Intel", cores: 18, threads: 36, base_clock: "3.0 GHz", max_turbo: "3.6 GHz", l3_cache: 39, tdp: "205 W" },
+{ model: "AMD EPYC 7473X", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.8 GHz", max_turbo: "3.7 GHz", l3_cache: 768, tdp: "240 W" },
+{ model: "Intel Xeon Gold 5317", manufacturer: "Intel", cores: 12, threads: 24, base_clock: "3.0 GHz", max_turbo: "3.6 GHz", l3_cache: 18, tdp: "150 W" },
+{ model: "AMD EPYC 7373X", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.05 GHz", max_turbo: "3.8 GHz", l3_cache: 768, tdp: "240 W" },
+{ model: "Intel Xeon E-2386G", manufacturer: "Intel", cores: 6, threads: 12, base_clock: "3.5 GHz", max_turbo: "5.1 GHz", l3_cache: 12, tdp: "95 W" },
+{ model: "AMD EPYC 7F52", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.5 GHz", max_turbo: "3.9 GHz", l3_cache: 256, tdp: "240 W" },
+{ model: "Intel Xeon W-1390P", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.5 GHz", max_turbo: "5.3 GHz", l3_cache: 16, tdp: "125 W" },
+{ model: "AMD EPYC 7F32", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "3.7 GHz", max_turbo: "3.9 GHz", l3_cache: 128, tdp: "180 W" },
+{ model: "Intel Xeon Gold 6258R", manufacturer: "Intel", cores: 28, threads: 56, base_clock: "2.7 GHz", max_turbo: "4.0 GHz", l3_cache: 38.5, tdp: "205 W" },
+{ model: "AMD EPYC 7532P", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.4 GHz", max_turbo: "3.3 GHz", l3_cache: 256, tdp: "200 W" },
+{ model: "Intel Xeon Gold 6246R", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "3.4 GHz", max_turbo: "4.1 GHz", l3_cache: 35.75, tdp: "205 W" },
+{ model: "AMD EPYC 7442", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.25 GHz", max_turbo: "3.4 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon Gold 5218R", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.1 GHz", max_turbo: "4.0 GHz", l3_cache: 27.5, tdp: "125 W" },
+{ model: "AMD EPYC 7351", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.4 GHz", max_turbo: "2.9 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon Silver 4116", manufacturer: "Intel", cores: 12, threads: 24, base_clock: "2.1 GHz", max_turbo: "3.0 GHz", l3_cache: 16.5, tdp: "85 W" },
+{ model: "AMD EPYC 7601", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.2 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon E5-2680 v4", manufacturer: "Intel", cores: 14, threads: 28, base_clock: "2.4 GHz", max_turbo: "3.3 GHz", l3_cache: 35, tdp: "120 W" },
+{ model: "AMD EPYC 7551P", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.0 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon E5-2650 v4", manufacturer: "Intel", cores: 12, threads: 24, base_clock: "2.2 GHz", max_turbo: "2.9 GHz", l3_cache: 30, tdp: "105 W" },
+{ model: "AMD EPYC 7401P", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.0 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon E5-2630 v4", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.2 GHz", max_turbo: "3.1 GHz", l3_cache: 25, tdp: "85 W" },
+{ model: "AMD EPYC 7301", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.2 GHz", max_turbo: "2.7 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon E5-2620 v4", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "2.1 GHz", max_turbo: "3.0 GHz", l3_cache: 20, tdp: "85 W" },
+{ model: "AMD EPYC 7281", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.1 GHz", max_turbo: "2.7 GHz", l3_cache: 32, tdp: "170 W" },
+{ model: "Intel Xeon E3-1270 v6", manufacturer: "Intel", cores: 4, threads: 8, base_clock: "3.8 GHz", max_turbo: "4.2 GHz", l3_cache: 8, tdp: "72 W" },
+{ model: "AMD Opteron 6386 SE", manufacturer: "AMD", cores: 16, threads: 16, base_clock: "2.8 GHz", max_turbo: "3.5 GHz", l3_cache: 16, tdp: "140 W" },
+{ model: "Intel Xeon Platinum 9282", manufacturer: "Intel", cores: 56, threads: 112, base_clock: "2.6 GHz", max_turbo: "3.8 GHz", l3_cache: 77, tdp: "400 W" },
+{ model: "AMD EPYC 9654P", manufacturer: "AMD", cores: 96, threads: 192, base_clock: "2.4 GHz", max_turbo: "3.7 GHz", l3_cache: 384, tdp: "360 W" },
+{ model: "Intel Xeon Platinum 9242", manufacturer: "Intel", cores: 48, threads: 96, base_clock: "2.3 GHz", max_turbo: "3.8 GHz", l3_cache: 71.5, tdp: "350 W" },
+{ model: "AMD EPYC 9534", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.45 GHz", max_turbo: "3.7 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Gold 6438Y+", manufacturer: "Intel", cores: 32, threads: 64, base_clock: "2.0 GHz", max_turbo: "4.0 GHz", l3_cache: 60, tdp: "205 W" },
+{ model: "AMD EPYC 9454P", manufacturer: "AMD", cores: 48, threads: 96, base_clock: "2.75 GHz", max_turbo: "3.8 GHz", l3_cache: 256, tdp: "290 W" },
+{ model: "Intel Xeon Gold 5420+", manufacturer: "Intel", cores: 28, threads: 56, base_clock: "2.0 GHz", max_turbo: "3.8 GHz", l3_cache: 52.5, tdp: "205 W" },
+{ model: "AMD EPYC 9334", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.7 GHz", max_turbo: "3.9 GHz", l3_cache: 128, tdp: "210 W" },
+{ model: "Intel Xeon Silver 4410T", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.9 GHz", max_turbo: "3.9 GHz", l3_cache: 22.5, tdp: "150 W" },
+{ model: "AMD EPYC 9254", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.9 GHz", max_turbo: "4.15 GHz", l3_cache: 128, tdp: "200 W" },
+{ model: "Intel Xeon Bronze 3408", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "1.8 GHz", max_turbo: "3.3 GHz", l3_cache: 22.5, tdp: "125 W" },
+{ model: "AMD EPYC 8224P", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.55 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "160 W" },
+{ model: "Intel Xeon D-1747NTE", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.5 GHz", max_turbo: "3.5 GHz", l3_cache: 15, tdp: "90 W" },
+{ model: "AMD EPYC 8124P", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.45 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "130 W" },
+{ model: "Intel Xeon E-2374G", manufacturer: "Intel", cores: 4, threads: 8, base_clock: "3.7 GHz", max_turbo: "5.0 GHz", l3_cache: 8, tdp: "80 W" },
+{ model: "AMD EPYC 8024P", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "2.4 GHz", max_turbo: "3.0 GHz", l3_cache: 32, tdp: "90 W" },
+{ model: "Intel Xeon Gold 6426Y", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.5 GHz", max_turbo: "4.1 GHz", l3_cache: 37.5, tdp: "185 W" },
+{ model: "AMD EPYC 9554P", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "3.1 GHz", max_turbo: "3.75 GHz", l3_cache: 256, tdp: "360 W" },
+{ model: "Intel Xeon Silver 4310", manufacturer: "Intel", cores: 12, threads: 24, base_clock: "2.1 GHz", max_turbo: "3.3 GHz", l3_cache: 18, tdp: "120 W" },
+{ model: "AMD EPYC 7543P", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.8 GHz", max_turbo: "3.7 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon Gold 6238T", manufacturer: "Intel", cores: 22, threads: 44, base_clock: "1.9 GHz", max_turbo: "3.7 GHz", l3_cache: 30.25, tdp: "125 W" },
+{ model: "AMD EPYC 7663", manufacturer: "AMD", cores: 56, threads: 112, base_clock: "2.0 GHz", max_turbo: "3.5 GHz", l3_cache: 256, tdp: "240 W" },
+{ model: "Intel Xeon Platinum 8368", manufacturer: "Intel", cores: 38, threads: 76, base_clock: "2.4 GHz", max_turbo: "3.4 GHz", l3_cache: 57, tdp: "270 W" },
+{ model: "AMD EPYC 7413", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.65 GHz", max_turbo: "3.6 GHz", l3_cache: 128, tdp: "180 W" },
+{ model: "Intel Xeon Gold 5215", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.5 GHz", max_turbo: "3.4 GHz", l3_cache: 13.75, tdp: "85 W" },
+{ model: "AMD EPYC 7313P", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.0 GHz", max_turbo: "3.7 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon E5-2698 v4", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.2 GHz", max_turbo: "3.6 GHz", l3_cache: 50, tdp: "135 W" },
+{ model: "AMD EPYC 7702", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.0 GHz", max_turbo: "3.35 GHz", l3_cache: 256, tdp: "200 W" },
+{ model: "Intel Xeon W-3275", manufacturer: "Intel", cores: 28, threads: 56, base_clock: "2.5 GHz", max_turbo: "4.6 GHz", l3_cache: 38.5, tdp: "205 W" },
+{ model: "AMD EPYC 7H12", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.6 GHz", max_turbo: "3.3 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Gold 6142", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.6 GHz", max_turbo: "3.7 GHz", l3_cache: 22, tdp: "150 W" },
+{ model: "AMD EPYC 7552", manufacturer: "AMD", cores: 48, threads: 96, base_clock: "2.2 GHz", max_turbo: "3.3 GHz", l3_cache: 192, tdp: "200 W" },
+{ model: "Intel Xeon Platinum 8153", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.0 GHz", max_turbo: "2.8 GHz", l3_cache: 22, tdp: "125 W" },
+{ model: "AMD EPYC 7401", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.0 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon E5-2683 v4", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.1 GHz", max_turbo: "3.0 GHz", l3_cache: 40, tdp: "120 W" },
+{ model: "AMD EPYC 7292", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "3.5 GHz", max_turbo: "3.6 GHz", l3_cache: 64, tdp: "120 W" },
+{ model: "Intel Xeon Platinum 8580", manufacturer: "Intel", cores: 60, threads: 120, base_clock: "2.0 GHz", max_turbo: "4.0 GHz", l3_cache: 300, tdp: "350 W" },
+{ model: "AMD EPYC 9384X", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "3.1 GHz", max_turbo: "3.9 GHz", l3_cache: 768, tdp: "320 W" },
+{ model: "Intel Xeon Gold 6530", manufacturer: "Intel", cores: 32, threads: 64, base_clock: "2.1 GHz", max_turbo: "4.0 GHz", l3_cache: 160, tdp: "270 W" },
+{ model: "AMD EPYC 8504P", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.0 GHz", max_turbo: "3.0 GHz", l3_cache: 128, tdp: "175 W" },
+{ model: "Intel Xeon Gold 5418Y", manufacturer: "Intel", cores: 24, threads: 48, base_clock: "2.0 GHz", max_turbo: "3.8 GHz", l3_cache: 45, tdp: "185 W" },
+{ model: "AMD EPYC 9224", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.5 GHz", max_turbo: "3.7 GHz", l3_cache: 64, tdp: "200 W" },
+{ model: "Intel Xeon Bronze 3508U", manufacturer: "Intel", cores: 8, threads: 8, base_clock: "2.1 GHz", max_turbo: "2.1 GHz", l3_cache: 22.5, tdp: "125 W" },
+{ model: "AMD EPYC 7643", manufacturer: "AMD", cores: 48, threads: 96, base_clock: "2.3 GHz", max_turbo: "3.6 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon Gold 6346", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "3.1 GHz", max_turbo: "3.6 GHz", l3_cache: 36, tdp: "205 W" },
+{ model: "AMD EPYC 7453", manufacturer: "AMD", cores: 28, threads: 56, base_clock: "2.75 GHz", max_turbo: "3.75 GHz", l3_cache: 64, tdp: "225 W" },
+{ model: "Intel Xeon Gold 5315Y", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.2 GHz", max_turbo: "3.6 GHz", l3_cache: 12, tdp: "140 W" },
+{ model: "AMD EPYC 7303", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.85 GHz", max_turbo: "3.5 GHz", l3_cache: 128, tdp: "155 W" },
+{ model: "Intel Xeon Silver 4215R", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.2 GHz", max_turbo: "4.0 GHz", l3_cache: 11, tdp: "130 W" },
+{ model: "AMD EPYC 7252P", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "3.1 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "120 W" },
+{ model: "Intel Xeon Gold 6138T", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "1.9 GHz", max_turbo: "3.7 GHz", l3_cache: 27.5, tdp: "125 W" },
+{ model: "AMD EPYC 7551", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.0 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon E5-2690 v4", manufacturer: "Intel", cores: 14, threads: 28, base_clock: "2.6 GHz", max_turbo: "3.5 GHz", l3_cache: 35, tdp: "135 W" },
+{ model: "AMD EPYC 7501", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.0 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon E5-2660 v3", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.6 GHz", max_turbo: "3.3 GHz", l3_cache: 25, tdp: "105 W" },
+{ model: "AMD Opteron 6380", manufacturer: "AMD", cores: 16, threads: 16, base_clock: "2.5 GHz", max_turbo: "3.4 GHz", l3_cache: 16, tdp: "115 W" },
+{ model: "Intel Xeon Platinum 8568Y+", manufacturer: "Intel", cores: 48, threads: 96, base_clock: "2.3 GHz", max_turbo: "4.1 GHz", l3_cache: 260, tdp: "350 W" },
+{ model: "AMD EPYC 9454", manufacturer: "AMD", cores: 48, threads: 96, base_clock: "2.75 GHz", max_turbo: "3.8 GHz", l3_cache: 256, tdp: "290 W" },
+{ model: "Intel Xeon Gold 6414U", manufacturer: "Intel", cores: 32, threads: 64, base_clock: "2.0 GHz", max_turbo: "3.4 GHz", l3_cache: 60, tdp: "250 W" },
+{ model: "AMD EPYC 8434P", manufacturer: "AMD", cores: 48, threads: 96, base_clock: "2.5 GHz", max_turbo: "3.1 GHz", l3_cache: 128, tdp: "200 W" },
+{ model: "Intel Xeon Gold 5415+", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "2.9 GHz", max_turbo: "4.1 GHz", l3_cache: 22.5, tdp: "150 W" },
+{ model: "AMD EPYC 9184X", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.55 GHz", max_turbo: "4.2 GHz", l3_cache: 768, tdp: "320 W" },
+{ model: "Intel Xeon W-2465X", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "3.1 GHz", max_turbo: "4.7 GHz", l3_cache: 33.75, tdp: "200 W" },
+{ model: "AMD Ryzen Threadripper PRO 7975WX", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "4.0 GHz", max_turbo: "5.3 GHz", l3_cache: 128, tdp: "350 W" },
+{ model: "Intel Xeon Platinum 8360Y", manufacturer: "Intel", cores: 36, threads: 72, base_clock: "2.4 GHz", max_turbo: "3.5 GHz", l3_cache: 54, tdp: "250 W" },
+{ model: "AMD EPYC 7533", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.85 GHz", max_turbo: "3.65 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon Gold 6242", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.8 GHz", max_turbo: "3.9 GHz", l3_cache: 22, tdp: "150 W" },
+{ model: "AMD EPYC 7351", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.4 GHz", max_turbo: "2.9 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon E5-2695 v3", manufacturer: "Intel", cores: 14, threads: 28, base_clock: "2.3 GHz", max_turbo: "3.3 GHz", l3_cache: 35, tdp: "120 W" },
+{ model: "AMD EPYC 7281", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.1 GHz", max_turbo: "2.7 GHz", l3_cache: 32, tdp: "170 W" },
+{ model: "Intel Xeon E3-1240 v5", manufacturer: "Intel", cores: 4, threads: 8, base_clock: "3.5 GHz", max_turbo: "3.9 GHz", l3_cache: 8, tdp: "80 W" },
+{ model: "Ampere Altra Max M64-30", manufacturer: "Ampere", cores: 64, threads: 64, base_clock: "3.0 GHz", max_turbo: "3.0 GHz", l3_cache: 128, tdp: "175 W" },
+{ model: "Intel Xeon Gold 5118", manufacturer: "Intel", cores: 12, threads: 24, base_clock: "2.3 GHz", max_turbo: "3.2 GHz", l3_cache: 16.5, tdp: "105 W" },
+{ model: "AMD EPYC 7441P", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.4 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon E5-2640 v4", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.4 GHz", max_turbo: "3.4 GHz", l3_cache: 25, tdp: "90 W" },
+{ model: "AMD Opteron 6276", manufacturer: "AMD", cores: 16, threads: 16, base_clock: "2.3 GHz", max_turbo: "3.2 GHz", l3_cache: 16, tdp: "115 W" },
+{ model: "Intel Xeon Platinum 8552", manufacturer: "Intel", cores: 36, threads: 72, base_clock: "2.2 GHz", max_turbo: "3.8 GHz", l3_cache: 180, tdp: "270 W" },
+{ model: "AMD EPYC 9354P", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "3.25 GHz", max_turbo: "3.8 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Gold 6434", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.7 GHz", max_turbo: "4.1 GHz", l3_cache: 22.5, tdp: "195 W" },
+{ model: "AMD EPYC 8324", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.55 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon Silver 4410T", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.9 GHz", max_turbo: "3.9 GHz", l3_cache: 22.5, tdp: "150 W" },
+{ model: "AMD EPYC 7553", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.85 GHz", max_turbo: "3.65 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon Gold 6326", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.9 GHz", max_turbo: "3.5 GHz", l3_cache: 24, tdp: "185 W" },
+{ model: "AMD EPYC 7403", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.8 GHz", max_turbo: "3.5 GHz", l3_cache: 128, tdp: "180 W" },
+{ model: "Intel Xeon Gold 5318S", manufacturer: "Intel", cores: 18, threads: 36, base_clock: "2.1 GHz", max_turbo: "3.4 GHz", l3_cache: 27, tdp: "150 W" },
+{ model: "AMD EPYC 7282P", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.8 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "120 W" },
+{ model: "Intel Xeon Gold 6226R", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.9 GHz", max_turbo: "3.9 GHz", l3_cache: 22, tdp: "150 W" },
+{ model: "AMD EPYC 7451", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.3 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon Platinum 8156", manufacturer: "Intel", cores: 4, threads: 8, base_clock: "3.6 GHz", max_turbo: "3.7 GHz", l3_cache: 16.5, tdp: "105 W" },
+{ model: "AMD EPYC 7351P", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.4 GHz", max_turbo: "2.9 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon E5-2667 v4", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.2 GHz", max_turbo: "3.6 GHz", l3_cache: 25, tdp: "135 W" },
+{ model: "AMD EPYC 7301", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.2 GHz", max_turbo: "2.7 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon E5-1650 v4", manufacturer: "Intel", cores: 6, threads: 12, base_clock: "3.6 GHz", max_turbo: "4.0 GHz", l3_cache: 15, tdp: "140 W" },
+{ model: "AMD EPYC 7251", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "2.1 GHz", max_turbo: "2.9 GHz", l3_cache: 32, tdp: "120 W" },
+{ model: "Intel Xeon D-2183IT", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.2 GHz", max_turbo: "3.0 GHz", l3_cache: 22, tdp: "100 W" },
+{ model: "Ampere Altra Q64-28", manufacturer: "Ampere", cores: 64, threads: 64, base_clock: "2.8 GHz", max_turbo: "2.8 GHz", l3_cache: 32, tdp: "150 W" },
+{ model: "Intel Xeon Platinum 8593Q", manufacturer: "Intel", cores: 64, threads: 128, base_clock: "2.2 GHz", max_turbo: "3.9 GHz", l3_cache: 320, tdp: "385 W" },
+{ model: "AMD EPYC 9654", manufacturer: "AMD", cores: 96, threads: 192, base_clock: "2.4 GHz", max_turbo: "3.7 GHz", l3_cache: 384, tdp: "360 W" },
+{ model: "Intel Xeon Gold 6544Y", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "3.6 GHz", max_turbo: "4.1 GHz", l3_cache: 45, tdp: "270 W" },
+{ model: "AMD EPYC 9554", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "3.1 GHz", max_turbo: "3.75 GHz", l3_cache: 256, tdp: "360 W" },
+{ model: "Intel Xeon Platinum 8470", manufacturer: "Intel", cores: 52, threads: 104, base_clock: "2.0 GHz", max_turbo: "3.8 GHz", l3_cache: 105, tdp: "350 W" },
+{ model: "AMD EPYC 9474F", manufacturer: "AMD", cores: 48, threads: 96, base_clock: "3.6 GHz", max_turbo: "4.1 GHz", l3_cache: 256, tdp: "360 W" },
+{ model: "Intel Xeon Gold 6430", manufacturer: "Intel", cores: 32, threads: 64, base_clock: "2.1 GHz", max_turbo: "3.4 GHz", l3_cache: 60, tdp: "270 W" },
+{ model: "AMD EPYC 9374F", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "3.85 GHz", max_turbo: "4.3 GHz", l3_cache: 256, tdp: "320 W" },
+{ model: "Intel Xeon Silver 4416+", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.0 GHz", max_turbo: "3.5 GHz", l3_cache: 37.5, tdp: "165 W" },
+{ model: "AMD EPYC 9274F", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "4.05 GHz", max_turbo: "4.3 GHz", l3_cache: 256, tdp: "320 W" },
+{ model: "Intel Xeon W-3465X", manufacturer: "Intel", cores: 28, threads: 56, base_clock: "2.5 GHz", max_turbo: "4.8 GHz", l3_cache: 67.5, tdp: "270 W" },
+{ model: "AMD Ryzen Threadripper PRO 7965WX", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "4.2 GHz", max_turbo: "5.3 GHz", l3_cache: 128, tdp: "350 W" },
+{ model: "Intel Xeon Platinum 8352V", manufacturer: "Intel", cores: 36, threads: 72, base_clock: "2.1 GHz", max_turbo: "3.5 GHz", l3_cache: 54, tdp: "205 W" },
+{ model: "AMD EPYC 7713P", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.0 GHz", max_turbo: "3.675 GHz", l3_cache: 256, tdp: "225 W" },
+{ model: "Intel Xeon Gold 6248", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.5 GHz", max_turbo: "3.9 GHz", l3_cache: 27.5, tdp: "150 W" },
+{ model: "AMD EPYC 7601", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.2 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon E5-2699 v3", manufacturer: "Intel", cores: 18, threads: 36, base_clock: "2.3 GHz", max_turbo: "3.6 GHz", l3_cache: 45, tdp: "145 W" },
+{ model: "AMD EPYC 7401P", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.0 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "170 W" },
+{ model: "Intel Xeon E-2176G", manufacturer: "Intel", cores: 6, threads: 12, base_clock: "3.7 GHz", max_turbo: "4.7 GHz", l3_cache: 12, tdp: "80 W" },
+{ model: "Ampere Altra Q80-30", manufacturer: "Ampere", cores: 80, threads: 80, base_clock: "3.0 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "195 W" },
+{ model: "Intel Xeon Platinum 8570", manufacturer: "Intel", cores: 56, threads: 112, base_clock: "2.1 GHz", max_turbo: "4.0 GHz", l3_cache: 280, tdp: "350 W" },
+{ model: "AMD EPYC 9534", manufacturer: "AMD", cores: 64, threads: 128, base_clock: "2.45 GHz", max_turbo: "3.7 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Gold 6554S", manufacturer: "Intel", cores: 36, threads: 72, base_clock: "2.2 GHz", max_turbo: "4.0 GHz", l3_cache: 180, tdp: "270 W" },
+{ model: "AMD EPYC 9334", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.7 GHz", max_turbo: "3.9 GHz", l3_cache: 128, tdp: "210 W" },
+{ model: "Intel Xeon Gold 5412U", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.1 GHz", max_turbo: "3.9 GHz", l3_cache: 37.5, tdp: "165 W" },
+{ model: "AMD EPYC 8224", manufacturer: "AMD", cores: 24, threads: 48, base_clock: "2.55 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "160 W" },
+{ model: "Intel Xeon Gold 6334", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.6 GHz", max_turbo: "3.7 GHz", l3_cache: 18, tdp: "165 W" },
+{ model: "AMD EPYC 7503", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.8 GHz", max_turbo: "3.5 GHz", l3_cache: 128, tdp: "200 W" },
+{ model: "Intel Xeon Silver 4314", manufacturer: "Intel", cores: 16, threads: 32, base_clock: "2.4 GHz", max_turbo: "3.4 GHz", l3_cache: 24, tdp: "135 W" },
+{ model: "AMD EPYC 7353", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.1 GHz", max_turbo: "3.8 GHz", l3_cache: 128, tdp: "165 W" },
+{ model: "Intel Xeon Gold 5222", manufacturer: "Intel", cores: 4, threads: 8, base_clock: "3.8 GHz", max_turbo: "3.9 GHz", l3_cache: 16.5, tdp: "105 W" },
+{ model: "AMD EPYC 7292P", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "3.5 GHz", max_turbo: "3.6 GHz", l3_cache: 64, tdp: "120 W" },
+{ model: "Intel Xeon Gold 6152", manufacturer: "Intel", cores: 22, threads: 44, base_clock: "2.1 GHz", max_turbo: "3.7 GHz", l3_cache: 30.25, tdp: "140 W" },
+{ model: "AMD EPYC 7551P", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.0 GHz", max_turbo: "3.0 GHz", l3_cache: 64, tdp: "180 W" },
+{ model: "Intel Xeon E5-2680 v3", manufacturer: "Intel", cores: 12, threads: 24, base_clock: "2.5 GHz", max_turbo: "3.3 GHz", l3_cache: 30, tdp: "120 W" },
+{ model: "AMD Opteron X3421", manufacturer: "AMD", cores: 4, threads: 4, base_clock: "2.1 GHz", max_turbo: "3.4 GHz", l3_cache: 2, tdp: "35 W" },
+{ model: "Intel Xeon E-2356G", manufacturer: "Intel", cores: 6, threads: 12, base_clock: "3.2 GHz", max_turbo: "5.0 GHz", l3_cache: 12, tdp: "80 W" },
+{ model: "AMD EPYC 7232", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "3.1 GHz", max_turbo: "3.2 GHz", l3_cache: 32, tdp: "120 W" },
+{ model: "Intel Xeon Silver 4112", manufacturer: "Intel", cores: 4, threads: 8, base_clock: "2.6 GHz", max_turbo: "3.0 GHz", l3_cache: 8.25, tdp: "85 W" },
+{ model: "AMD EPYC 7272", manufacturer: "AMD", cores: 12, threads: 24, base_clock: "2.9 GHz", max_turbo: "3.2 GHz", l3_cache: 64, tdp: "120 W" },
+{ model: "Intel Xeon Platinum 8468", manufacturer: "Intel", cores: 48, threads: 96, base_clock: "2.1 GHz", max_turbo: "3.8 GHz", l3_cache: 97.5, tdp: "330 W" },
+{ model: "AMD EPYC 9634", manufacturer: "AMD", cores: 84, threads: 168, base_clock: "2.25 GHz", max_turbo: "3.7 GHz", l3_cache: 384, tdp: "340 W" },
+{ model: "Intel Xeon Platinum 8351N", manufacturer: "Intel", cores: 36, threads: 72, base_clock: "2.4 GHz", max_turbo: "3.5 GHz", l3_cache: 54, tdp: "225 W" },
+{ model: "AMD EPYC 75F3", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.95 GHz", max_turbo: "4.0 GHz", l3_cache: 256, tdp: "280 W" },
+{ model: "Intel Xeon Gold 6230", manufacturer: "Intel", cores: 20, threads: 40, base_clock: "2.1 GHz", max_turbo: "3.9 GHz", l3_cache: 27.5, tdp: "125 W" },
+{ model: "AMD EPYC 7502", manufacturer: "AMD", cores: 32, threads: 64, base_clock: "2.5 GHz", max_turbo: "3.35 GHz", l3_cache: 128, tdp: "180 W" },
+{ model: "Intel Xeon E5-2650 v3", manufacturer: "Intel", cores: 10, threads: 20, base_clock: "2.3 GHz", max_turbo: "3.0 GHz", l3_cache: 25, tdp: "105 W" },
+{ model: "AMD EPYC 7371", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "3.1 GHz", max_turbo: "3.8 GHz", l3_cache: 64, tdp: "200 W" },
+{ model: "Intel Xeon Platinum 8180", manufacturer: "Intel", cores: 28, threads: 56, base_clock: "2.5 GHz", max_turbo: "3.8 GHz", l3_cache: 38.5, tdp: "205 W" },
+{ model: "AMD EPYC 7351", manufacturer: "AMD", cores: 16, threads: 32, base_clock: "2.4 GHz", max_turbo: "2.9 GHz", l3_cache: 64, tdp: "155 W" },
+{ model: "Intel Xeon E5-2630 v3", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "2.4 GHz", max_turbo: "3.2 GHz", l3_cache: 20, tdp: "85 W" },
+{ model: "AMD EPYC 7251", manufacturer: "AMD", cores: 8, threads: 16, base_clock: "2.1 GHz", max_turbo: "2.9 GHz", l3_cache: 32, tdp: "120 W" },
+{ model: "Intel Xeon E-2288G", manufacturer: "Intel", cores: 8, threads: 16, base_clock: "3.7 GHz", max_turbo: "5.0 GHz", l3_cache: 16, tdp: "95 W" },
+{ model: "Ampere Altra Max M96-28", manufacturer: "Ampere", cores: 96, threads: 96, base_clock: "2.8 GHz", max_turbo: "2.8 GHz", l3_cache: 128, tdp: "210 W" },
+{ model: "Intel Xeon Gold 5122", manufacturer: "Intel", cores: 4, threads: 8, base_clock: "3.6 GHz", max_turbo: "3.7 GHz", l3_cache: 16.5, tdp: "105 W" }
+];
+
 let currentSortColumn = -1;
 let isAscending = true;
+let currentData = [...processorData];
 
-function filterTable() {
+const tableBody = document.getElementById('processorTableBody');
+
+function renderTable(data) {
+tableBody.innerHTML = '';
+const fragment = document.createDocumentFragment();
+data.forEach(p => {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${p.model}</td>
+<td>${p.manufacturer}</td>
+<td>${p.cores}</td>
+<td>${p.threads}</td>
+<td>${p.base_clock}</td>
+<td>${p.max_turbo}</td>
+<td>${p.l3_cache}</td>
+<td>${p.tdp}</td>
+`;
+fragment.appendChild(row);
+});
+tableBody.appendChild(fragment);
+}
+
+function applyFilters() {
 const selectedBrand = document.getElementById('brandFilter').value;
-const tableBody = document.getElementById('processorTableBody');
-const rows = tableBody.getElementsByTagName('tr');
+const searchTerm = document.getElementById('searchBox').value.toLowerCase();
 
-for (let i = 0; i < rows.length; i++) {
-const row = rows[i];
-const manufacturerCell = row.getElementsByTagName('td')[1];
-if (manufacturerCell) {
-const manufacturerName = manufacturerCell.textContent || manufacturerCell.innerText;
-if (selectedBrand === 'all' || manufacturerName === selectedBrand) {
-row.style.display = '';
-} else {
-row.style.display = 'none';
-}
-}
-}
+let filteredData = processorData.filter(p => {
+const brandMatch = selectedBrand === 'all' || p.manufacturer === selectedBrand;
+const searchMatch = p.model.toLowerCase().includes(searchTerm);
+return brandMatch && searchMatch;
+});
+
+currentData = filteredData;
+sortTable(currentSortColumn, false); // Пересортировать отфильтрованные данные
 }
 
-function sortTable(columnIndex) {
-const tableBody = document.getElementById('processorTableBody');
-const rows = Array.from(tableBody.getElementsByTagName('tr'));
-const numericColumns = [2, 3, 6]; // Columns: Cores, Threads, TDP
-const clockColumns = [4, 5]; // Columns: Base Clock, Max Turbo Clock
+function sortTable(columnIndex, toggleDirection = true) {
+if (columnIndex === -1) {
+renderTable(currentData);
+return;
+}
 
+if (toggleDirection) {
 if (columnIndex === currentSortColumn) {
 isAscending = !isAscending;
 } else {
 currentSortColumn = columnIndex;
 isAscending = true;
 }
+}
 
-const sortedRows = rows.sort((a, b) => {
-const cellA = a.getElementsByTagName('td')[columnIndex].innerText.trim();
-const cellB = b.getElementsByTagName('td')[columnIndex].innerText.trim();
+const keyMap = ['model', 'manufacturer', 'cores', 'threads', 'base_clock', 'max_turbo', 'l3_cache', 'tdp'];
+const key = keyMap[columnIndex];
 
-let valueA, valueB;
+currentData.sort((a, b) => {
+let valA = a[key];
+let valB = b[key];
 
-if (numericColumns.includes(columnIndex) || clockColumns.includes(columnIndex)) {
-// Extract numbers from strings like "145 W" or "2.2 GHz"
-valueA = parseFloat(cellA) || 0;
-valueB = parseFloat(cellB) || 0;
+// Числовое сравнение для определенных полей
+if (['cores', 'threads', 'l3_cache'].includes(key)) {
+valA = Number(valA);
+valB = Number(valB);
+}
+// Сравнение для полей с единицами измерения (GHz, W)
+else if (['base_clock', 'max_turbo', 'tdp'].includes(key)) {
+valA = parseFloat(valA) || 0;
+valB = parseFloat(valB) || 0;
 } else {
-valueA = cellA;
-valueB = cellB;
+valA = valA.toString().toLowerCase();
+valB = valB.toString().toLowerCase();
 }
 
-if (valueA < valueB) {
-return isAscending ? -1 : 1;
-}
-if (valueA > valueB) {
-return isAscending ? 1 : -1;
-}
+if (valA < valB) return isAscending ? -1 : 1;
+if (valA > valB) return isAscending ? 1 : -1;
 return 0;
 });
 
-// Re-append rows in sorted order
-while (tableBody.firstChild) {
-tableBody.removeChild(tableBody.firstChild);
-}
-sortedRows.forEach(row => tableBody.appendChild(row));
-
+renderTable(currentData);
 updateSortIndicators();
 }
 
@@ -404,6 +632,12 @@ indicator.textContent = '';
 });
 }
 
+// Initial load
+window.onload = () => {
+currentSortColumn = 0; // Сортируем по модели по умолчанию
+isAscending = true;
+applyFilters();
+};
 </script>
 </body>
 </html>
